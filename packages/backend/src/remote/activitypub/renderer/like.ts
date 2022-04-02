@@ -13,7 +13,9 @@ export const renderLike = async (noteReaction: NoteReaction, note: Note) => {
 		id: `${config.url}/likes/${noteReaction.id}`,
 		actor: `${config.url}/users/${noteReaction.userId}`,
 		object: note.uri ? note.uri : `${config.url}/notes/${noteReaction.noteId}`,
-		content: reaction,
+		... (reaction !== '\u2b50' ? {
+			content: reaction,
+		} : {}),
 	} as any;
 
 	if (reaction.startsWith(':')) {
