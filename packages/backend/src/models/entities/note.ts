@@ -51,7 +51,7 @@ export class Note {
 	@Column('varchar', {
 		length: 256, nullable: true,
 	})
-	public threadId: string | null;
+	public threadId: string;
 
 	@Column('text', {
 		nullable: true,

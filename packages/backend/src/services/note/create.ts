@@ -369,7 +369,7 @@ export default async (user: { id: User['id']; username: User['username']; host: 
 			if (data.reply.userHost === null) {
 				const threadMuted = await NoteThreadMutings.findOneBy({
 					userId: data.reply.userId,
-					threadId: data.reply.threadId || data.reply.id,
+					threadId: data.reply.threadId,
 				});
 
 				if (!threadMuted) {
@@ -500,15 +500,16 @@ function incRenoteCount(renote: Note): void {
 
 async function insertNote(user: { id: User['id']; host: User['host']; }, data: Option, tags: string[], emojis: string[], mentionedUsers: MinimumUser[]): Promise<Note> {
 	const createdAt = data.createdAt ?? new Date();
+	const id = genId(createdAt);
 
 	const insert = new Note({
-		id: genId(createdAt),
+		id,
 		createdAt,
-		fileIds: data.files?.map(file => file.id) ?? [],
-		replyId: data.reply?.id ?? null,
-		renoteId: data.renote?.id ?? null,
-		channelId: data.channel?.id ?? null,
-		threadId: data.reply?.threadId ?? data.reply?.id ?? null,
+		fileIds: data.files ? data.files.map(file => file.id) : [],
+		replyId: data.reply ? data.reply.id : null,
+		renoteId: data.renote ? data.renote.id : null,
+		channelId: data.channel ? data.channel.id : null,
+		threadId: data.reply?.threadId ?? id,
 		name: data.name,
 		text: data.text,
 		hasPoll: data.poll != null,
@@ -616,7 +617,7 @@ async function createMentionedEvents(mentionedUsers: MinimumUser[], note: Note, 
 	for (const u of mentionedUsers.filter(u => Users.isLocalUser(u))) {
 		const threadMuted = await NoteThreadMutings.findOneBy({
 			userId: u.id,
-			threadId: note.threadId || note.id,
+			threadId: note.threadId,
 		});
 
 		if (threadMuted) {

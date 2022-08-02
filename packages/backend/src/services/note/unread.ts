@@ -20,7 +20,7 @@ export async function insertNoteUnread(userId: User['id'], note: Note, params: {
 	// スレッドミュート
 	const threadMute = await NoteThreadMutings.findOneBy({
 		userId,
-		threadId: note.threadId || note.id,
+		threadId: note.threadId,
 	});
 	if (threadMute) return;
 

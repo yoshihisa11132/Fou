@@ -57,7 +57,7 @@ export default define(meta, paramDef, async (ps, user) => {
 		NoteThreadMutings.count({
 			where: {
 				userId: user.id,
-				threadId: note.threadId || note.id,
+				threadId: note.threadId,
 			},
 			take: 1,
 		}),

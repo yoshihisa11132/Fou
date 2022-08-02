@@ -29,7 +29,7 @@ export default define(meta, paramDef, async (ps, user) => {
 	});
 
 	await NoteThreadMutings.delete({
-		threadId: note.threadId || note.id,
+		threadId: note.threadId,
 		userId: user.id,
 	});
 });

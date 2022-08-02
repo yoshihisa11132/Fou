@@ -41,9 +41,7 @@ export default define(meta, paramDef, async (ps, user) => {
 
 	const mutedNotes = await Notes.find({
 		where: [{
-			id: note.threadId || note.id,
-		}, {
-			threadId: note.threadId || note.id,
+			threadId: note.threadId,
 		}],
 	});
 
@@ -52,7 +50,7 @@ export default define(meta, paramDef, async (ps, user) => {
 	await NoteThreadMutings.insert({
 		id: genId(),
 		createdAt: new Date(),
-		threadId: note.threadId || note.id,
+		threadId: note.threadId,
 		userId: user.id,
 		mutingNotificationTypes: ps.mutingNotificationTypes,
 	});
