@@ -14,29 +14,25 @@
 		<span v-else-if="item.type === 'pending'" :tabindex="i" class="pending item">
 			<span><MkEllipsis/></span>
 		</span>
-		<MkA v-else-if="item.type === 'link'" :to="item.to" :tabindex="i" class="_button item" @click.passive="close()">
+		<MkA v-else-if="item.type === 'link'" :class="{ indicated: item.indicate }" :to="item.to" :tabindex="i" class="_button item" @click.passive="close()">
 			<i v-if="item.icon" class="fa-fw" :class="item.icon"></i>
 			<MkAvatar v-if="item.avatar" :user="item.avatar" class="avatar"/>
 			<span>{{ item.text }}</span>
-			<span v-if="item.indicate" class="indicator"><i class="fas fa-circle"></i></span>
 		</MkA>
-		<a v-else-if="item.type === 'a'" :href="item.href" :target="item.target" :download="item.download" :tabindex="i" class="_button item" @click="close()">
+		<a v-else-if="item.type === 'a'" :class="{ indicated: item.indicate }" :href="item.href" :target="item.target" :download="item.download" :tabindex="i" class="_button item" @click="close()">
 			<i v-if="item.icon" class="fa-fw" :class="item.icon"></i>
 			<span>{{ item.text }}</span>
-			<span v-if="item.indicate" class="indicator"><i class="fas fa-circle"></i></span>
 		</a>
-		<button v-else-if="item.type === 'user'" :tabindex="i" class="_button item" :class="{ active: item.active }" :disabled="item.active" @click="clicked(item.action, $event)">
+		<button v-else-if="item.type === 'user'" :tabindex="i" class="_button item" :class="{ active: item.active, indicated: item.indicate }" :disabled="item.active" @click="clicked(item.action, $event)">
 			<MkAvatar :user="item.user" class="avatar"/><MkUserName :user="item.user"/>
-			<span v-if="item.indicate" class="indicator"><i class="fas fa-circle"></i></span>
 		</button>
 		<span v-else-if="item.type === 'switch'" :tabindex="i" class="item">
 			<FormSwitch v-model="item.ref" :disabled="item.disabled" class="form-switch">{{ item.text }}</FormSwitch>
 		</span>
-		<button v-else :tabindex="i" class="_button item" :class="{ danger: item.danger, active: item.active }" :disabled="item.active" @click="clicked(item.action, $event)">
+		<button v-else :tabindex="i" class="_button item" :class="{ danger: item.danger, active: item.active, indicated: item.indicate }" :disabled="item.active" @click="clicked(item.action, $event)">
 			<i v-if="item.icon" class="fa-fw" :class="item.icon"></i>
 			<MkAvatar v-if="item.avatar" :user="item.avatar" class="avatar"/>
 			<span>{{ item.text }}</span>
-			<span v-if="item.indicate" class="indicator"><i class="fas fa-circle"></i></span>
 		</button>
 	</template>
 	<span v-if="items2.length === 0" class="none item">
@@ -235,15 +231,6 @@ function focusDown() {
 			margin-right: 5px;
 			width: 20px;
 			height: 20px;
-		}
-
-		> .indicator {
-			position: absolute;
-			top: 5px;
-			left: 13px;
-			color: var(--indicator);
-			font-size: 12px;
-			animation: blink 1s infinite;
 		}
 	}
 

@@ -44,7 +44,6 @@
 		inputBorderHover: 'rgba(0, 0, 0, 0.2)',
 		panelBorder: '" solid 1px var(--divider)',
 		accentDarken: ':darken<10<@accent',
-		navIndicator: '@accent',
 		accentLighten: ':lighten<10<@accent',
 		buttonHoverBg: 'rgba(0, 0, 0, 0.1)',
 		driveFolderBg: ':alpha<0.3<@accent',

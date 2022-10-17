@@ -27,10 +27,18 @@
 	</template>
 
 	<div v-if="isMobile" class="buttons">
-		<button class="button nav _button" @click="drawerMenuShowing = true"><i class="fas fa-bars"></i><span v-if="menuIndicated" class="indicator"><i class="fas fa-circle"></i></span></button>
-		<button class="button home _button" @click="mainRouter.push('/')"><i class="fas fa-home"></i></button>
-		<button class="button notifications _button" @click="mainRouter.push('/my/notifications')"><i class="fas fa-bell"></i><span v-if="$i?.hasUnreadNotification" class="indicator"><i class="fas fa-circle"></i></span></button>
-		<button class="button post _button" @click="os.post()"><i class="fas fa-pencil-alt"></i></button>
+		<button class="button nav _button" :class="{ indicated: menuIndicated }" @click="drawerMenuShowing = true">
+			<i class="fas fa-bars"></i>
+		</button>
+		<button class="button home _button" @click="mainRouter.push('/')">
+			<i class="fas fa-home"></i>
+		</button>
+		<button class="button notifications _button" :class="{ indicated: $i?.hasUnreadNotification }" @click="mainRouter.push('/my/notifications')">
+			<i class="fas fa-bell"></i>
+		</button>
+		<button class="button post _button" @click="os.post()">
+			<i class="fas fa-pencil-alt"></i>
+		</button>
 	</div>
 
 	<transition :name="$store.state.animation ? 'menu-back' : ''">
@@ -243,15 +251,6 @@ function moveFocus(id: string, direction: 'up' | 'down' | 'left' | 'right') {
 
 			&:hover {
 				background: var(--X2);
-			}
-
-			> .indicator {
-				position: absolute;
-				top: 0;
-				left: 0;
-				color: var(--indicator);
-				font-size: 16px;
-				animation: blink 1s infinite;
 			}
 
 			&:first-child {

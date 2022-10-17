@@ -14,18 +14,18 @@
 	</MkA>
 	<template v-for="item in menu">
 		<div v-if="item === '-'" class="divider"></div>
-		<component :is="menuDef[item].to ? 'MkA' : 'button'" v-else-if="menuDef[item] && (menuDef[item].show !== false)" class="item _button" :class="item" active-class="active" :to="menuDef[item].to" v-on="menuDef[item].action ? { click: menuDef[item].action } : {}">
-			<i class="fa-fw" :class="menuDef[item].icon"></i><span class="text">{{ i18n.ts[menuDef[item].title] }}</span>
-			<span v-if="menuDef[item].indicated" class="indicator"><i class="fas fa-circle"></i></span>
+		<component :is="menuDef[item].to ? 'MkA' : 'button'" v-else-if="menuDef[item] && (menuDef[item].show !== false)" class="item _button" :class="[ item, { indicated: menuDef[item].indicated } ]" active-class="active" :to="menuDef[item].to" v-on="menuDef[item].action ? { click: menuDef[item].action } : {}">
+			<i class="fa-fw" :class="menuDef[item].icon"></i>
+			<span class="text">{{ i18n.ts[menuDef[item].title] }}</span>
 		</component>
 	</template>
 	<div class="divider"></div>
 	<MkA v-if="iAmModerator" class="item" active-class="active" to="/admin" :behavior="settingsWindowed ? 'modalWindow' : null">
 		<i class="fas fa-door-open fa-fw"></i><span class="text">{{ i18n.ts.controlPanel }}</span>
 	</MkA>
-	<button class="item _button" @click="more">
-		<i class="fas fa-ellipsis-h fa-fw"></i><span class="text">{{ i18n.ts.more }}</span>
-		<span v-if="otherNavItemIndicated" class="indicator"><i class="fas fa-circle"></i></span>
+	<button class="item _button" @click="more" :class="{ indicated: otherNavItemIndicated }">
+		<i class="fas fa-ellipsis-h fa-fw"></i>
+		<span class="text">{{ i18n.ts.more }}</span>
 	</button>
 	<MkA class="item" active-class="active" to="/settings" :behavior="settingsWindowed ? 'modalWindow' : null">
 		<i class="fas fa-cog fa-fw"></i><span class="text">{{ i18n.ts.settings }}</span>
@@ -212,15 +212,6 @@ function openAccountMenuWrapper(ev: MouseEvent): void {
 			width: $avatar-size;
 			height: $avatar-size;
 			vertical-align: middle;
-		}
-
-		> .indicator {
-			position: absolute;
-			top: 0;
-			left: 0;
-			color: var(--navIndicator);
-			font-size: 8px;
-			animation: blink 1s infinite;
 		}
 
 		&:hover {

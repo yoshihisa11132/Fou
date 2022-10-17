@@ -7,18 +7,16 @@
 			</MkA>
 			<template v-for="item in menu">
 				<div v-if="item === '-'" class="divider"></div>
-				<component :is="menuDef[item].to ? 'MkA' : 'button'" v-else-if="menuDef[item] && (menuDef[item].show !== false)" v-tooltip="i18n.ts[menuDef[item].title]" class="item _button" :class="item" active-class="active" :to="menuDef[item].to" v-on="menuDef[item].action ? { click: menuDef[item].action } : {}">
+				<component :is="menuDef[item].to ? 'MkA' : 'button'" v-else-if="menuDef[item] && (menuDef[item].show !== false)" v-tooltip="i18n.ts[menuDef[item].title]" class="item _button" :class="[ item, { indicated: menuDef[item].indicated }]" active-class="active" :to="menuDef[item].to" v-on="menuDef[item].action ? { click: menuDef[item].action } : {}">
 					<i class="fa-fw" :class="menuDef[item].icon"></i>
-					<span v-if="menuDef[item].indicated" class="indicator"><i class="fas fa-circle"></i></span>
 				</component>
 			</template>
 			<div class="divider"></div>
 			<MkA v-if="iAmModerator" v-tooltip="i18n.ts.controlPanel" class="item" active-class="active" to="/admin" :behavior="settingsWindowed ? 'modalWindow' : null">
 				<i class="fas fa-door-open fa-fw"></i>
 			</MkA>
-			<button class="item _button" @click="more">
+			<button class="item _button" :class="{ indicated: otherNavItemIndicated }" @click="more">
 				<i class="fas fa-ellipsis-h fa-fw"></i>
-				<span v-if="otherNavItemIndicated" class="indicator"><i class="fas fa-circle"></i></span>
 			</button>
 		</div>
 		<div class="right">
@@ -127,15 +125,6 @@ function openAccountMenuWrapper(ev: MouseEvent): void {
 					width: $avatar-size;
 					height: $avatar-size;
 					vertical-align: middle;
-				}
-
-				> .indicator {
-					position: absolute;
-					top: 0;
-					left: 0;
-					color: var(--navIndicator);
-					font-size: 8px;
-					animation: blink 1s infinite;
 				}
 
 				&:hover {

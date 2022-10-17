@@ -63,7 +63,6 @@
 		inputBorder: 'rgba(255, 255, 255, 0.1)',
 		panelBorder: '" solid 1px var(--divider)',
 		accentDarken: ':darken<10<@accent',
-		navIndicator: '@indicator',
 		accentLighten: ':lighten<10<@accent',
 		buttonHoverBg: 'rgba(255, 255, 255, 0.1)',
 		driveFolderBg: ':alpha<0.3<@accent',

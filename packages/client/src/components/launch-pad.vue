@@ -3,15 +3,13 @@
 	<div class="szkkfdyq _popup _shadow" :class="{ asDrawer: type === 'drawer' }" :style="{ maxHeight: maxHeight ? maxHeight + 'px' : '' }">
 		<div class="main">
 			<template v-for="item in items">
-				<button v-if="item.action" class="_button" @click="$event => { item.action($event); close(); }">
+				<button v-if="item.action" class="_button" :class="{ indicated: item.indicated }" @click="$event => { item.action($event); close(); }">
 					<i class="icon" :class="item.icon"></i>
-					<div class="text">{{ item.text }}</div>
-					<span v-if="item.indicate" class="indicator"><i class="fas fa-circle"></i></span>
+					<span>{{ item.text }}</span>
 				</button>
-				<MkA v-else :to="item.to" @click.passive="close()">
+				<MkA v-else :to="item.to" :class="{ indicated: item.indicated }" @click.passive="close()">
 					<i class="icon" :class="item.icon"></i>
-					<div class="text">{{ item.text }}</div>
-					<span v-if="item.indicate" class="indicator"><i class="fas fa-circle"></i></span>
+					<span>{{ item.text }}</span>
 				</MkA>
 			</template>
 		</div>
@@ -66,7 +64,7 @@ const items = Object.keys(menuDef).filter(k => !menu.includes(k)).map(k => menuD
 	icon: def.icon,
 	to: def.to,
 	action: def.action,
-	indicate: def.indicated,
+	indicated: def.indicated,
 }));
 
 function close() {
@@ -141,24 +139,10 @@ function help(ev: MouseEvent) {
 				height: 24px;
 			}
 
-			> .text {
+			> span {
 				margin-top: 12px;
 				font-size: 0.8em;
 				line-height: 1.5em;
-			}
-
-			> .indicator {
-				position: absolute;
-				top: 32px;
-				left: 32px;
-				color: var(--indicator);
-				font-size: 8px;
-				animation: blink 1s infinite;
-
-				@media (max-width: 500px) {
-					top: 16px;
-					left: 16px;
-				}
 			}
 		}
 	}

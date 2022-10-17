@@ -9,24 +9,27 @@
 		</MkA>
 		<template v-for="item in menu">
 			<div v-if="item === '-'" class="divider"></div>
-			<component :is="menuDef[item].to ? 'MkA' : 'button'" v-else-if="menuDef[item] && (menuDef[item].show !== false)" class="item _button" :class="[item, { active: menuDef[item].active }]" active-class="active" :to="menuDef[item].to" v-on="menuDef[item].action ? { click: menuDef[item].action } : {}">
-				<i class="fa-fw" :class="menuDef[item].icon"></i><span class="text">{{ i18n.ts[menuDef[item].title] }}</span>
-				<span v-if="menuDef[item].indicated" class="indicator"><i class="fas fa-circle"></i></span>
+			<component :is="menuDef[item].to ? 'MkA' : 'button'" v-else-if="menuDef[item] && (menuDef[item].show !== false)" class="item _button" :class="[item, { active: menuDef[item].active }, { indicated: menuDef[item].indicated }]" active-class="active" :to="menuDef[item].to" v-on="menuDef[item].action ? { click: menuDef[item].action } : {}">
+				<i class="fa-fw" :class="menuDef[item].icon"></i>
+				<span class="text">{{ i18n.ts[menuDef[item].title] }}</span>
 			</component>
 		</template>
 		<div class="divider"></div>
 		<MkA v-if="$i.isAdmin || $i.isModerator" class="item" active-class="active" to="/admin">
-			<i class="fas fa-door-open fa-fw"></i><span class="text">{{ i18n.ts.controlPanel }}</span>
+			<i class="fas fa-door-open fa-fw"></i>
+			<span class="text">{{ i18n.ts.controlPanel }}</span>
 		</MkA>
-		<button class="item _button" @click="more">
-			<i class="fa fa-ellipsis-h fa-fw"></i><span class="text">{{ i18n.ts.more }}</span>
-			<span v-if="otherMenuItemIndicated" class="indicator"><i class="fas fa-circle"></i></span>
+		<button class="item _button" :class="{ indicated: otherMenuItemIndicated }" @click="more">
+			<i class="fa fa-ellipsis-h fa-fw"></i>
+			<span class="text">{{ i18n.ts.more }}</span>
 		</button>
 		<MkA class="item" active-class="active" to="/settings">
-			<i class="fas fa-cog fa-fw"></i><span class="text">{{ i18n.ts.settings }}</span>
+			<i class="fas fa-cog fa-fw"></i>
+			<span class="text">{{ i18n.ts.settings }}</span>
 		</MkA>
 		<button class="item _button post" data-cy-open-post-form @click="os.post">
-			<i class="fas fa-pencil-alt fa-fw"></i><span class="text">{{ i18n.ts.note }}</span>
+			<i class="fas fa-pencil-alt fa-fw"></i>
+			<span class="text">{{ i18n.ts.note }}</span>
 		</button>
 	</div>
 </div>
@@ -135,15 +138,6 @@ function more(ev: MouseEvent) {
 				width: $avatar-size;
 				height: $avatar-size;
 				vertical-align: middle;
-			}
-
-			> .indicator {
-				position: absolute;
-				top: 0;
-				left: 20px;
-				color: var(--navIndicator);
-				font-size: 8px;
-				animation: blink 1s infinite;
 			}
 
 			> .text {

@@ -41,7 +41,6 @@
 		inputBorderHover: 'rgba(255, 255, 255, 0.2)',
 		panelBorder: '" solid 1px var(--divider)',
 		accentDarken: ':darken<10<@accent',
-		navIndicator: '@accent',
 		accentLighten: ':lighten<10<@accent',
 		buttonHoverBg: 'rgba(255, 255, 255, 0.1)',
 		buttonGradateA: '@accent',
