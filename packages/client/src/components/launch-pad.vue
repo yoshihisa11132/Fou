@@ -16,15 +16,15 @@
 		<div class="sub">
 			<button class="_button" @click="help">
 				<i class="fas fa-question-circle icon"></i>
-				<div class="text">{{ i18n.ts.help }}</div>
+				<span>{{ i18n.ts.help }}</span>
 			</button>
 			<MkA to="/about" @click.passive="close()">
 				<i class="fas fa-info-circle icon"></i>
-				<div class="text">{{ i18n.ts.instanceInfo }}</div>
+				<span>{{ i18n.ts.instanceInfo }}</span>
 			</MkA>
 			<MkA to="/about-foundkey" @click.passive="close()">
 				<img src="/static-assets/favicon.png" class="icon"/>
-				<div class="text">{{ i18n.ts.aboutMisskey }}</div>
+				<span>{{ i18n.ts.aboutMisskey }}</span>
 			</MkA>
 		</div>
 	</div>
