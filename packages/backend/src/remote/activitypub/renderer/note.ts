@@ -131,7 +131,7 @@ export default async function renderNote(note: Note, dive = true, isTalk = false
 
 	return {
 		id: `${config.url}/notes/${note.id}`,
-		context: `${config.url}/notes/${note.threadId}`,
+		context: note.threadId,
 		type: 'Note',
 		attributedTo,
 		summary,

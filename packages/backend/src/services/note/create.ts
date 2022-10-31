@@ -509,7 +509,7 @@ async function insertNote(user: { id: User['id']; host: User['host']; }, data: O
 		replyId: data.reply ? data.reply.id : null,
 		renoteId: data.renote ? data.renote.id : null,
 		channelId: data.channel ? data.channel.id : null,
-		threadId: data.reply?.threadId ?? id,
+		threadId: data.reply?.threadId ?? `${config.url}/notes/${id}`,
 		name: data.name,
 		text: data.text,
 		hasPoll: data.poll != null,
