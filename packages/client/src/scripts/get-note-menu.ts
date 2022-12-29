@@ -7,6 +7,7 @@ import * as os from '@/os';
 import copyToClipboard from '@/scripts/copy-to-clipboard';
 import { url } from '@/config';
 import { noteActions } from '@/store';
+import { del } from '@/scripts/request';
 
 export function getNoteMenu(props: {
 	note: foundkey.entities.Note;
@@ -25,20 +26,18 @@ export function getNoteMenu(props: {
 
 	const appearNote = isRenote ? props.note.renote as foundkey.entities.Note : props.note;
 
-	function del(): void {
+	function deleteNote(): void {
 		os.confirm({
 			type: 'warning',
 			text: i18n.ts.noteDeleteConfirm,
 		}).then(({ canceled }) => {
 			if (canceled) return;
 
-			os.api('notes/delete', {
-				noteId: appearNote.id,
-			});
+			del(`/api/v2/notes/${appearNote.id}`);
 		});
 	}
 
-	function delEdit(): void {
+	function deleteEditNote(): void {
 		os.confirm({
 			type: 'warning',
 			text: i18n.ts.deleteAndEditConfirm,
@@ -310,13 +309,13 @@ export function getNoteMenu(props: {
 				appearNote.userId === $i.id ? {
 					icon: 'fas fa-edit',
 					text: i18n.ts.deleteAndEdit,
-					action: delEdit,
+					action: deleteEditNote,
 				} : undefined,
 				{
 					icon: 'fas fa-trash-alt',
 					text: i18n.ts.delete,
 					danger: true,
-					action: del,
+					action: deleteNote,
 				}]
 			: []
 			)]
