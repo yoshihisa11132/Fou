@@ -9,7 +9,7 @@
 						<img v-if="page.eyeCatchingImageId" :src="page.eyeCatchingImage.url"/>
 					</div>
 					<div class="content" :class="{ center: page.alignCenter, serif: page.font === 'serif' }">
-						<Mfm :text="page.text" :is-note="false"/>
+						<Markdown :text="page.text" :is-note="false"/>
 					</div>
 					<div class="actions">
 						<div class="like">
@@ -65,6 +65,7 @@ import MkFollowButton from '@/components/follow-button.vue';
 import MkContainer from '@/components/ui/container.vue';
 import MkPagination from '@/components/ui/pagination.vue';
 import MkPagePreview from '@/components/page-preview.vue';
+import Markdown from '@/components/markdown.vue';
 import { i18n } from '@/i18n';
 import { definePageMetadata } from '@/scripts/page-metadata';
 
