@@ -1,7 +1,7 @@
 <template>
 <div class="adhpbeos">
 	<div class="label" @click="focus"><slot name="label"></slot></div>
-	<div class="input" :class="{ disabled, focused, tall, pre }">
+	<div class="input" :class="{ disabled, focused, tall, pre, markdown }">
 		<textarea
 			ref="inputEl"
 			v-model="v"
@@ -20,6 +20,10 @@
 			@keydown="onKeydown($event)"
 			@input="onInput"
 		></textarea>
+		<a v-if="markdown" href="/mfm-cheat-sheet" class="md-hint">
+			<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 208 128"><path d="M193 128H15a15 15 0 0 1-15-15V15A15 15 0 0 1 15 0h178a15 15 0 0 1 15 15v98a15 15 0 0 1-15 15zM50 98V59l20 25 20-25v39h20V30H90L70 55 50 30H30v68zm134-34h-20V30h-20v34h-20l30 35z"/></svg>
+			Markdown supported
+		</a>
 	</div>
 	<div class="caption"><slot name="caption"></slot></div>
 
@@ -56,6 +60,7 @@ const props = withDefaults(defineProps<{
 	debounce?: boolean;
 	manualSave?: boolean;
 	max?: number;
+	markdown?: boolean;
 }>(), {
 	pattern: undefined,
 	placeholder: '',
@@ -63,6 +68,7 @@ const props = withDefaults(defineProps<{
 	tall: false,
 	pre: false,
 	manualSave: false,
+	markdown: false,
 });
 
 const { modelValue } = toRefs(props);
@@ -166,10 +172,8 @@ onMounted(() => {
 			}
 		}
 
-		&.focused {
-			> textarea {
-				border-color: var(--accent) !important;
-			}
+		&.focused > textarea {
+			border-color: var(--accent) !important;
 		}
 
 		&.disabled {
@@ -180,15 +184,33 @@ onMounted(() => {
 			}
 		}
 
-		&.tall {
-			> textarea {
-				min-height: 200px;
-			}
+		&.tall > textarea {
+			min-height: 200px;
 		}
 
-		&.pre {
+		&.pre > textarea {
+			white-space: pre;
+		}
+
+		&.markdown {
 			> textarea {
-				white-space: pre;
+				border-bottom-right-radius: 0;
+				border-bottom-left-radius: 0;
+				border-bottom-color: var(--fg);
+			}
+
+			> .md-hint {
+				background-color: var(--panel);
+				border-bottom-right-radius: 6px;
+				border-bottom-left-radius: 6px;
+				padding: .3em;
+				display: block;
+
+				> svg {
+					height: .7em;
+					fill: var(--fg);
+					padding: 0 .3em;
+				}
 			}
 		}
 	}

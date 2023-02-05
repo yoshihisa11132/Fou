@@ -45,7 +45,7 @@
 		</div>
 
 		<div v-else-if="tab === 'contents'">
-			<MkTextarea v-model="text" :readonly="readonly"/>
+			<MkTextarea v-model="text" :readonly="readonly" markdown/>
 		</div>
 	</MkSpacer>
 </MkStickyContainer>
