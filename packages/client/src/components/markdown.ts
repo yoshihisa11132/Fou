@@ -51,7 +51,9 @@ export const Markdown = defineComponent({
 
 		return h(
 			'span',
-			{ class: 'markdown-container' },
+			{
+				class: 'markdown-container ' + (this.$store.state.animatedMfm ? 'animated-mfm' : ''),
+			},
 			mapNodes(dom.childNodes)
 		);
 	},
