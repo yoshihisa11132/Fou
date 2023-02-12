@@ -65,7 +65,7 @@ import MkFollowButton from '@/components/follow-button.vue';
 import MkContainer from '@/components/ui/container.vue';
 import MkPagination from '@/components/ui/pagination.vue';
 import MkPagePreview from '@/components/page-preview.vue';
-import Markdown from '@/components/markdown.vue';
+import { Markdown } from '@/components/markdown.ts';
 import { i18n } from '@/i18n';
 import { definePageMetadata } from '@/scripts/page-metadata';
 
