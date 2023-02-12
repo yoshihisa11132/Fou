@@ -101,7 +101,10 @@ marked.use({
 			level: 'inline',
 			start(src) { return src.indexOf('$['); },
 			tokenizer(src) {
-				/* ABNF of the regex below, the regex matches the <mfm-fn> rule
+				/*
+				 * ABNF of the regex below, the regex matches the <mfm-fn> rule
+				 * SECURITY: neither argument key nor value must contain any "HTML dangerous" characters
+
 				name     = 1*(ALPHA / DIGIT / "_")                  ; one or more "word" characters, Ecmascripts \w
 
 				argument = <name> ["=" <name>]                      ; arguments are key = value pairs
@@ -124,7 +127,6 @@ marked.use({
 						.split(',')
 						// split argument name and value
 						.map((arg) => {
-							console.log("mfm arg", arg);
 							if (arg.includes('=')) {
 								// split once at first equal sign
 								const equalsIdx = arg.indexOf('=');
@@ -152,8 +154,10 @@ marked.use({
 				const argsAttrs = Object.entries(token.args)
 					.reduce((acc, [key, value]) => {
 						if (value == null) {
+							// SECURITY: key does not need to be escaped because only "word" characters will be matched in the tokenizer
 							return acc + ` data-mfm-${key}`;
 						} else {
+							// SECURITY: key and value do not need to be escaped because only "word" characters will be matched in the tokenizer
 							return acc + ` data-mfm-${key}="${value}"`;
 						}
 					}, '');
