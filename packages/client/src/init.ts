@@ -3,6 +3,7 @@
  */
 
 import '@/style.scss';
+import '@/mfm.scss';
 
 //#region account indexedDB migration
 import { set } from '@/scripts/idb-proxy';
