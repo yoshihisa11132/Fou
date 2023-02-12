@@ -45,8 +45,7 @@ export default defineComponent({
 
 		const validTime = (t: string | true) => {
 			if (typeof t !== 'string') return null;
-
-			return t.match(/^[0-9.]+s$/) ? t : null;
+			return t.match(/^[0-9.]+m?s$/) ? t : null;
 		};
 
 		const genEl = (ast: mfm.MfmNode[]) => ast.map((token): VNode | VNode[] => {
@@ -82,140 +81,63 @@ export default defineComponent({
 				}
 
 				case 'fn': {
-					// TODO: CSSを文字列で組み立てていくと token.props.args.~~~ 経由でCSSインジェクションできるのでよしなにやる
-					let style;
+					const attributes = Object.keys(token.props.args).reduce((acc, x) => {
+						if (!['deg', 'speed', 'color'].includes(x)) acc['data-mfm-' + x] = true;
+						return acc;
+					}, {});
 					switch (token.props.name) {
-						case 'tada': {
-							const speed = validTime(token.props.args.speed) || '1s';
-							style = 'font-size: 150%;' + (this.$store.state.animatedMfm ? `animation: mfm-tada ${speed} linear infinite both;` : '');
-							break;
-						}
-						case 'jelly': {
-							const speed = validTime(token.props.args.speed) || '1s';
-							style = (this.$store.state.animatedMfm ? `animation: mfm-rubberBand ${speed} linear infinite both;` : '');
-							break;
-						}
-						case 'twitch': {
-							const speed = validTime(token.props.args.speed) || '0.5s';
-							style = this.$store.state.animatedMfm ? `animation: mfm-twitch ${speed} ease infinite;` : '';
-							break;
-						}
-						case 'shake': {
-							const speed = validTime(token.props.args.speed) || '0.5s';
-							style = this.$store.state.animatedMfm ? `animation: mfm-shake ${speed} ease infinite;` : '';
-							break;
-						}
-						case 'spin': {
-							const direction =
-								token.props.args.left ? 'reverse' :
-								token.props.args.alternate ? 'alternate' :
-								'normal';
-							const anime =
-								token.props.args.x ? 'mfm-spinX' :
-								token.props.args.y ? 'mfm-spinY' :
-								'mfm-spin';
-							const speed = validTime(token.props.args.speed) || '1.5s';
-							style = this.$store.state.animatedMfm ? `animation: ${anime} ${speed} linear infinite; animation-direction: ${direction};` : '';
-							break;
-						}
-						case 'jump': {
-							const speed = validTime(token.props.args.speed) || '0.75s';
-							style = this.$store.state.animatedMfm ? `animation: mfm-jump ${speed} linear infinite;` : '';
-							break;
-						}
-						case 'bounce': {
-							const speed = validTime(token.props.args.speed) || '0.75s';
-							style = this.$store.state.animatedMfm ? `animation: mfm-bounce ${speed} linear infinite; transform-origin: center bottom;` : '';
-							break;
-						}
-						case 'flip': {
-							const transform =
-								(token.props.args.h && token.props.args.v) ? 'scale(-1, -1)' :
-								token.props.args.v ? 'scaleY(-1)' :
-								'scaleX(-1)';
-							style = `transform: ${transform};`;
-							break;
-						}
-						case 'x2': {
-							return h('span', {
-								class: 'mfm-x2'
-							}, genEl(token.children));
-						}
-						case 'x3': {
-							return h('span', {
-								class: 'mfm-x3'
-							}, genEl(token.children));
-						}
-						case 'x4': {
-							return h('span', {
-								class: 'mfm-x4'
-							}, genEl(token.children));
-						}
-						case 'font': {
-							const family =
-								token.props.args.serif ? 'serif' :
-								token.props.args.monospace ? 'monospace' :
-								token.props.args.cursive ? 'cursive' :
-								token.props.args.fantasy ? 'fantasy' :
-								token.props.args.emoji ? 'emoji' :
-								token.props.args.math ? 'math' :
-								null;
-							if (family) style = `font-family: ${family};`;
-							break;
-						}
-						case 'blur': {
-							return h('span', {
-								class: '_mfm_blur_',
-							}, genEl(token.children));
-						}
-						case 'rainbow': {
-							const speed = validTime(token.props.args.speed) || '1s';
-							style = this.$store.state.animatedMfm ? `animation: mfm-rainbow ${speed} linear infinite;` : '';
-							break;
-						}
 						case 'sparkle': {
 							if (!this.$store.state.animatedMfm) {
 								return genEl(token.children);
 							}
 							return h(MkSparkle, {}, genEl(token.children));
 						}
-						case 'rotate': {
-							const degrees = (typeof token.props.args.deg === 'string' ? parseInt(token.props.args.deg) : null) || '90';
-							style = `transform: rotate(${degrees}deg); transform-origin: center center;`;
-							break;
-						}
 						case 'position': {
 							const x = parseFloat(token.props.args.x ?? '0');
 							const y = parseFloat(token.props.args.y ?? '0');
-							style = `transform: translate(${x}em, ${y}em);`;
+							attributes.style = `transform: translate(${x}em, ${y}em);`;
 							break;
 						}
 						case 'scale': {
 							const x = Math.min(parseFloat(token.props.args.x ?? '1'), 5);
 							const y = Math.min(parseFloat(token.props.args.y ?? '1'), 5);
-							style = `transform: scale(${x}, ${y});`;
+							attributes.style = `transform: scale(${x}, ${y});`;
 							break;
 						}
 						case 'fg': {
 							let color = token.props.args.color ?? 'f00';
 							if (!/^([0-9a-f]{3}){1,2}$/i.test(color)) color = 'f00';
-							style = `color: #${color};`;
+							attributes.style = `color: #${color};`;
 							break;
 						}
 						case 'bg': {
 							let color = token.props.args.color ?? '0f0';
 							if (!/^([0-9a-f]{3}){1,2}$/i.test(color)) color = '0f0';
-							style = `background-color: #${color};`;
+							attributes.style = `background-color: #${color};`;
 							break;
 						}
+						case 'bounce':
+						case 'jelly':
+						case 'jump':
+						case 'rainbow':
+						case 'shake':
+						case 'spin':
+						case 'tada':
+						case 'twitch':
+							if (token.props.args.speed) {
+								attributes.style = '--mfm-speed: ' + validTime(token.props.args.speed);
+							}
+							break;
+						case 'rotate':
+							if (!isNaN(parseInt(token.props.args.deg))) {
+								attributes.style = '--mfm-deg: ' + parseInt(token.props.args.deg);
+							}
+							break;
 					}
-					if (style == null) {
-						return h('span', {}, ['$[', token.props.name, ' ', ...genEl(token.children), ']']);
-					} else {
-						return h('span', {
-							style: 'display: inline-block;' + style,
-						}, genEl(token.children));
-					}
+					return h('span', {
+						class: 'mfm-' + token.props.name,
+						...attributes,
+					}, genEl(token.children));
 				}
 
 				case 'small': {
@@ -225,8 +147,8 @@ export default defineComponent({
 				}
 
 				case 'center': {
-					return h('div', {
-						style: 'text-align:center;',
+					return h('span', {
+						class: 'mfm-center',
 					}, genEl(token.children));
 				}
 
@@ -334,6 +256,8 @@ export default defineComponent({
 		}).flat();
 
 		// Parse ast to DOM
-		return h('span', genEl(ast));
+		return h('span', {
+			class: this.$store.state.animatedMfm ? 'animated-mfm' : '',
+		}, genEl(ast));
 	},
 });

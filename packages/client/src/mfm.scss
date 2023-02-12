@@ -71,18 +71,22 @@
 
 .animated-mfm {
 	.mfm-jelly {
-		animation: mfm-rubberBand var(--mfm-speed, 1s) linear infinte both;
+		display: inline-block;
+		animation: mfm-rubberBand var(--mfm-speed, 1s) linear infinite both;
 	}
 
 	.mfm-twitch {
+		display: inline-block;
 		animation: mfm-twitch var(--mfm-speed, .5s) ease infinite;
 	}
 
 	.mfm-shake {
+		display: inline-block;
 		animation: mfm-shake var(--mfm-speed, .5s) ease infinite;
 	}
 
 	.mfm-spin {
+		display: inline-block;
 		animation: mfm-spin var(--mfm-speed, 1.5s) linear infinite;
 	}
 	.mfm-spin[data-mfm-y] {
@@ -99,10 +103,12 @@
 	}
 
 	.mfm-jump {
+		display: inline-block;
 		animation: mfm-jump var(--mfm-speed, .75s) linear infinite;
 	}
 
 	.mfm-bounce {
+		display: inline-block;
 		animation: mfm-bounce var(--mfm-speed, .75s) linear infinite;
 		transform-origin: center bottom;
 	}
@@ -112,6 +118,7 @@
 	}
 
 	.mfm-tada {
+		display: inline-block;
 		animation: mfm-tada var(--mfm-speed, 1s) linear infinite both;
 		--mfm-zoom-size: 150%;
 	}
