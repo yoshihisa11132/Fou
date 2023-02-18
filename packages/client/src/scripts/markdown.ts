@@ -4,7 +4,7 @@ import * as foundkey from 'foundkey-js';
 import { MFM_TAGS } from '@/scripts/mfm-tags';
 
 const sanitizerOptions = {
-	allowedTags: ["h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "dd", "dl", "dt", "hr", "li", "ol", "p", "pre", "ul", "a", "b", "br", "code", "em", "i", "kbd", "mark", "q", "rp", "rt", "ruby", "s", "small", "span", "strong", "sub", "sup", "u", "wbr", "caption", "col", "colgroup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "img"],
+	allowedTags: ["h1", "h2", "h3", "h4", "h5", "h6", "blockquote", "dd", "dl", "dt", "hr", "li", "ol", "p", "pre", "ul", "a", "b", "br", "code", "em", "i", "kbd", "mark", "q", "rp", "rt", "ruby", "s", "small", "span", "strong", "sub", "sup", "u", "wbr", "caption", "col", "colgroup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "img", "del"],
 	allowedAttributes: {
 		a: [ 'href', 'name', 'target' ],
 		img: [ 'src', 'srcset', 'alt', 'title', 'width', 'height', 'loading' ],
@@ -39,6 +39,50 @@ marked.setOptions({
 	sanitizer: (html) => sanitizeHtml(html, inputSanitizerOptions),
 });
 marked.use({
+	tokenizer: {
+		blockquote(src) {
+			// custom behaviour: don't continue blockquotes onto lines that do not start with a `>`
+			// but allow a single empty line to continue the quote
+			const match = src.match(/^(?: {0,3}>.*(?:\r\n|\n|$){1,2})+/);
+			if (!match) return;
+
+			const lines = match[0].replaceAll('\r\n', '\n')
+				.split('\n')
+				.map(line => {
+					if (line === '') { return line; }
+
+					const initial = line.match(/^ {0,3}>[ \t]?/);
+					return line.replace(initial[0], '');
+				})
+				.join('\n');
+
+			const tokens = [];
+			this.lexer.blockTokens(lines, tokens);
+
+			return {
+				type: 'blockquote',
+				raw: match[0],
+				text: lines,
+				tokens,
+			};
+		},
+	},
+	renderer: {
+		code(code, infostring, _escaped) {
+			// TODO what does escaped mean here?
+			const elem = document.createElement("span");
+			elem.classList.add('mfm-codeblock');
+			elem.setAttribute("data-mfm-language", infostring);
+			elem.innerText = code;
+			return elem.outerHTML;
+		},
+		codespan(code) {
+			const elem = document.createElement("span");
+			elem.classList.add('mfm-inline-code');
+			elem.innerText = code;
+			return elem.outerHTML;
+		},
+	},
 	extensions: [
 		{
 			name: 'center-tag',
@@ -59,7 +103,7 @@ marked.use({
 		{
 			name: 'mention',
 			level: 'inline',
-			start(src) { return src.match(/(^|\s)@/)?.index; },
+			start(src) { return src.match(/(?<=^|\s)@/)?.index; },
 			tokenizer(src) {
 				const match = src.match(/^@([-_a-z0-9]+)(?:@(\p{L}+(?:[-.]*\p{L}+)*))?/iu);
 				if (!match) return;
@@ -94,6 +138,107 @@ marked.use({
 			},
 			renderer(token) {
 				return `<span class="mfm-emoji">${token.raw}</span>`;
+			},
+		},
+		{
+			name: 'katex-block',
+			level: 'block',
+			start(src) { return src.match(/^\\\[/)?.index; },
+			tokenizer(src) {
+				const match = src.match(/^\\\[[\r\n]*(.+?)[\r\n]*\\\]/s);
+				if (!match) return;
+
+				return {
+					type: 'katex-block',
+					raw: match[0],
+					katex: match[1],
+				};
+			},
+			renderer(token) {
+				const elem = document.createElement('span');
+				elem.classList.add('mfm-katex');
+				elem.innerText = token.katex;
+				return elem.outerHTML;
+			},
+		},
+		{
+			name: 'katex-inline',
+			level: 'inline',
+			start(src) { return src.match(/^\\\(/)?.index; },
+			tokenizer(src) {
+				const match = src.match(/^\\\((.+?)\\\)/);
+				if (!match) return;
+
+				return {
+					type: 'katex-inline',
+					raw: match[0],
+					katex: match[1],
+				};
+			},
+			renderer(token) {
+				const elem = document.createElement('span');
+				elem.classList.add('mfm-katex');
+				elem.setAttribute('data-mfm-inline', '1');
+				elem.innerText = token.katex;
+				return elem.outerHTML;
+			},
+		},
+		{
+			name: 'hashtag',
+			level: 'inline',
+			start(src) { return src.match(/(?<=^|\p{P}|\s)#/)?.index; },
+			tokenizer(src) {
+				if (!src.startsWith("#")) return;
+
+				function recognizeHashtag(src) {
+					// SECURITY: these regexes must not allow any "HTML dangerous" characters.
+					const ordinaries = src.match(/^[-\p{L}\p{N}\p{M}\p{Sk}\p{Pc}]*/u);
+					const open = src.slice(ordinaries[0].length).match(/^[\[({「]*/);
+
+					if (ordinaries[0].length === 0 && open[0].length === 0) {
+						// end of text or hashtag
+						return '';
+					}
+
+					const close = open[0].split("").map(char => {
+						return {
+							'[': '\\]',
+							'(': '\\)',
+							'{': '\\}',
+							'「': '」',
+						}[char];
+					}).join("");
+					const sub = src.slice(ordinaries[0].length).match(new RegExp(
+						open[0].replaceAll(/([\[({])/g, '\\$1') // escape open brackets/parens
+						+ '(.*)'
+						+ close,
+					'u'));
+					if (!sub || sub[1] !== recognizeHashtag(sub[1])) return ordinaries[0];
+
+					const recognized = ordinaries[0] + sub[0];
+					const remainder = recognizeHashtag(src.slice(recognized.length));
+
+					if (sub[1] === '' && remainder === '') {
+						// don't recognize parens with nothing in them at the end
+						return ordinaries[0];
+					} else {
+						return recognized + remainder;
+					}
+				}
+
+				let hashtag = recognizeHashtag(src.slice(1));
+				// all numeric strings cannot be hashtags
+				if (hashtag.match(/^\p{N}+$/u)) return;
+
+				return {
+					type: 'hashtag',
+					raw: '#' + hashtag,
+					tag: hashtag.normalize('NFKC'),
+				};
+			},
+			renderer(token) {
+				// SECURITY: token.raw cannot contain "HTML dangerous" characters
+				return `<a href="/explore/tags/${encodeURIComponent(token.tag)}" class="mfm-hashtag">${token.raw}</a>`;
 			},
 		},
 		{

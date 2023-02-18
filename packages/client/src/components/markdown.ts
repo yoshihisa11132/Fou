@@ -5,6 +5,9 @@ import { host } from '@/config';
 import MkMention from '@/components/mention.vue';
 import MkSparkle from '@/components/sparkle.vue';
 import MkEmoji from '@/components/global/emoji.vue';
+import MkLink from '@/components/link.vue';
+import MkCode from '@/components/code.vue';
+import MkFormula from '@/components/formula.vue';
 
 export const Markdown = defineComponent({
 	props: {
@@ -27,6 +30,12 @@ export const Markdown = defineComponent({
 			switch (node.nodeName) {
 				case '#text':
 					return node.textContent;
+				case 'A':
+					return h(MkLink, {
+						url: node.getAttribute('href'),
+						rel: 'nofollow noopener',
+					}, node.textContent);
+					break;
 				case 'SPAN':
 					if (node.classList.contains('mfm-sparkle')) {
 						return h(MkSparkle, {}, mapNodes(node.childNodes));
@@ -37,6 +46,17 @@ export const Markdown = defineComponent({
 						});
 					} else if (node.classList.contains('mfm-emoji')) {
 						return h(MkEmoji, { emoji: node.textContent, customEmojis: this.customEmojis });
+					} else if (node.classList.contains('mfm-codeblock') || node.classList.contains('mfm-inline-code')) {
+						return h(MkCode, {
+							code: node.innerText,
+							lang: node.getAttribute("data-mfm-language") ?? undefined,
+							inline: node.classList.contains('mfm-inline-code'),
+						}, node.innerText);
+					} else if (node.classList.contains('mfm-katex')) {
+						return h(MkFormula, {
+							formula: node.innerText,
+							block: !node.hasAttribute('data-mfm-inline'),
+						});
 					}
 					// fallthrough, just handle like ordinary nodes
 				default:
