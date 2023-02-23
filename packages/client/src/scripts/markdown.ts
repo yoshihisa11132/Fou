@@ -67,22 +67,6 @@ marked.use({
 			};
 		},
 	},
-	renderer: {
-		code(code, infostring, _escaped) {
-			// TODO what does escaped mean here?
-			const elem = document.createElement("span");
-			elem.classList.add('mfm-codeblock');
-			elem.setAttribute("data-mfm-language", infostring);
-			elem.innerText = code;
-			return elem.outerHTML;
-		},
-		codespan(code) {
-			const elem = document.createElement("span");
-			elem.classList.add('mfm-inline-code');
-			elem.innerText = code;
-			return elem.outerHTML;
-		},
-	},
 	extensions: [
 		{
 			name: 'center-tag',

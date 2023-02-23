@@ -35,7 +35,20 @@ export const Markdown = defineComponent({
 						url: node.getAttribute('href'),
 						rel: 'nofollow noopener',
 					}, node.textContent);
-					break;
+				case 'CODE':
+					return h(MkCode, {
+						code: node.innerText,
+						inline: true,
+					});
+				case 'PRE':
+					if (node.childNodes.length === 1 && node.childNodes[0].tagName === 'CODE') {
+						return h(MkCode, {
+							code: node.childNodes[0].textContent,
+							// TODO: lang attribute for language highlighting
+							inline: true,
+						});
+					}
+					// fallthrough
 				case 'SPAN':
 					if (node.classList.contains('mfm-sparkle')) {
 						return h(MkSparkle, {}, mapNodes(node.childNodes));
@@ -48,7 +61,7 @@ export const Markdown = defineComponent({
 						return h(MkEmoji, { emoji: node.textContent, customEmojis: this.customEmojis });
 					} else if (node.classList.contains('mfm-codeblock') || node.classList.contains('mfm-inline-code')) {
 						return h(MkCode, {
-							code: node.innerText,
+							code: node.textContent,
 							lang: node.getAttribute("data-mfm-language") ?? undefined,
 							inline: node.classList.contains('mfm-inline-code'),
 						}, node.innerText);
