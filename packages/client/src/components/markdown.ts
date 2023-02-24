@@ -59,12 +59,6 @@ export const Markdown = defineComponent({
 						});
 					} else if (node.classList.contains('mfm-emoji')) {
 						return h(MkEmoji, { emoji: node.textContent, customEmojis: this.customEmojis });
-					} else if (node.classList.contains('mfm-codeblock') || node.classList.contains('mfm-inline-code')) {
-						return h(MkCode, {
-							code: node.textContent,
-							lang: node.getAttribute("data-mfm-language") ?? undefined,
-							inline: node.classList.contains('mfm-inline-code'),
-						}, node.innerText);
 					} else if (node.classList.contains('mfm-katex')) {
 						return h(MkFormula, {
 							formula: node.innerText,
