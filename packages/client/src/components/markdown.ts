@@ -45,7 +45,7 @@ export const Markdown = defineComponent({
 						return h(MkCode, {
 							code: node.childNodes[0].textContent,
 							// TODO: lang attribute for language highlighting
-							inline: true,
+							inline: false,
 						});
 					}
 					// fallthrough
