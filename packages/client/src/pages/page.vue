@@ -9,7 +9,7 @@
 						<img v-if="page.eyeCatchingImageId" :src="page.eyeCatchingImage.url"/>
 					</div>
 					<div class="content" :class="{ center: page.alignCenter, serif: page.font === 'serif' }">
-						<Markdown :text="page.text" :is-note="false"/>
+						<Markdown v-once :text="page.text" :is-note="false"/>
 					</div>
 					<div class="actions">
 						<div class="like">
