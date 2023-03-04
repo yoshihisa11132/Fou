@@ -4,6 +4,7 @@
 }
 
 .mfm-flip {
+	display: inline-block;
 	transform: scaleX(-1);
 }
 .mfm-flip[data-mfm-v] {
@@ -42,6 +43,7 @@
 }
 
 .mfm-rotate {
+	display: inline-block;
 	transform: rotate(calc(var(--mfm-deg, 90) * 1deg));
 	transform-origin: center center;
 }
