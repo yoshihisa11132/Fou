@@ -34,7 +34,7 @@ export const Markdown = defineComponent({
 					return h(MkLink, {
 						url: node.getAttribute('href'),
 						rel: 'nofollow noopener',
-					}, node.textContent);
+					}, mapNodes(node.childNodes));
 				case 'CODE':
 					return h(MkCode, {
 						code: node.innerText,
