@@ -36,8 +36,7 @@ export async function addRelay(inbox: string): Promise<Relay> {
 	}).then(x => Relays.findOneByOrFail(x.identifiers[0]));
 
 	const relayActor = await getRelayActor();
-	const follow = renderFollowRelay(relay, relayActor);
-	const activity = renderActivity(follow);
+	const activity = renderActivity(renderFollowRelay(relay, relayActor));
 	deliver(relayActor, activity, relay.inbox);
 
 	return relay;
@@ -53,17 +52,14 @@ export async function removeRelay(inbox: string): Promise<void> {
 	}
 
 	const relayActor = await getRelayActor();
-	const follow = renderFollowRelay(relay, relayActor);
-	const undo = renderUndo(follow, relayActor);
-	const activity = renderActivity(undo);
+	const activity = renderActivity(renderUndo(renderFollowRelay(relay, relayActor), relayActor));
 	deliver(relayActor, activity, relay.inbox);
 
 	await Relays.delete(relay.id);
 }
 
 export async function listRelay(): Promise<Relay[]> {
-	const relays = await Relays.find();
-	return relays;
+	return await Relays.find();
 }
 
 export async function relayAccepted(id: string): Promise<string> {
