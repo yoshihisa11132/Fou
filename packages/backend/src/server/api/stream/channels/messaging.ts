@@ -1,7 +1,7 @@
 import { UserGroupJoinings, Users, MessagingMessages } from '@/models/index.js';
 import { User, ILocalUser, IRemoteUser } from '@/models/entities/user.js';
 import { UserGroup } from '@/models/entities/user-group.js';
-import { readUserMessagingMessage, readGroupMessagingMessage, deliverReadActivity } from '@/server/api/common/read-messaging-message.js';
+import { readUserMessagingMessage, readGroupMessagingMessage } from '@/server/api/common/read-messaging-message.js';
 import Channel from '@/server/api/stream/channel.js';
 import { StreamMessages } from '@/server/api/stream/types.js';
 
@@ -69,13 +69,6 @@ export default class extends Channel {
 			case 'read':
 				if (this.otherpartyId) {
 					readUserMessagingMessage(this.user!.id, this.otherpartyId, [body.id]);
-
-					// リモートユーザーからのメッセージだったら既読配信
-					if (Users.isLocalUser(this.user!) && Users.isRemoteUser(this.otherparty!)) {
-						MessagingMessages.findOneBy({ id: body.id }).then(message => {
-							if (message) deliverReadActivity(this.user as ILocalUser, this.otherparty as IRemoteUser, message);
-						});
-					}
 				} else if (this.groupId) {
 					readGroupMessagingMessage(this.user!.id, this.groupId, [body.id]);
 				}

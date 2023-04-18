@@ -4,7 +4,7 @@ import define from '@/server/api/define.js';
 import { ApiError } from '@/server/api/error.js';
 import { getUser } from '@/server/api/common/getters.js';
 import { makePaginationQuery } from '@/server/api/common/make-pagination-query.js';
-import { readUserMessagingMessage, readGroupMessagingMessage, deliverReadActivity } from '@/server/api/common/read-messaging-message.js';
+import { readUserMessagingMessage, readGroupMessagingMessage } from '@/server/api/common/read-messaging-message.js';
 
 export const meta = {
 	tags: ['messaging'],
@@ -75,11 +75,6 @@ export default define(meta, paramDef, async (ps, user) => {
 		// Mark all as read
 		if (ps.markAsRead) {
 			readUserMessagingMessage(user.id, recipient.id, messages.filter(m => m.recipientId === user.id).map(x => x.id));
-
-			// リモートユーザーとのメッセージだったら既読配信
-			if (Users.isLocalUser(user) && Users.isRemoteUser(recipient)) {
-				deliverReadActivity(user, recipient, messages);
-			}
 		}
 
 		return await Promise.all(messages.map(message => MessagingMessages.pack(message, user, {

@@ -7,10 +7,6 @@ import { MessagingMessages, UserGroupJoinings, Users } from '@/models/index.js';
 import { IdentifiableError } from '@/misc/identifiable-error.js';
 import { UserGroup } from '@/models/entities/user-group.js';
 import { toArray } from '@/prelude/array.js';
-import { renderReadActivity } from '@/remote/activitypub/renderer/read.js';
-import { renderActivity } from '@/remote/activitypub/renderer/index.js';
-import { deliver } from '@/queue/index.js';
-import orderedCollection from '@/remote/activitypub/renderer/ordered-collection.js';
 
 /**
  * Mark messages as read
@@ -130,21 +126,6 @@ export async function readGroupMessagingMessage(
 
 		if (!unreadExist) {
 			pushNotification(userId, 'readAllMessagingMessagesOfARoom', { groupId });
-		}
-	}
-}
-
-export async function deliverReadActivity(user: { id: User['id']; host: null; }, recipient: IRemoteUser, messages: MessagingMessage | MessagingMessage[]) {
-	const contents = toArray(messages)
-		.filter(x => x.uri)
-		.map(x => renderReadActivity(user, x));
-
-	if (contents.length > 1) {
-		const collection = orderedCollection(null, contents.length, undefined, undefined, contents);
-		deliver(renderActivity(collection), recipient.inbox);
-	} else {
-		for (const content of contents) {
-			deliver(renderActivity(content), recipient.inbox);
 		}
 	}
 }
