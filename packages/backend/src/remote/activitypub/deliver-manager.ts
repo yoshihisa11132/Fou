@@ -14,6 +14,7 @@ interface IEveryoneRecipe extends IRecipe {
 
 interface IFollowersRecipe extends IRecipe {
 	type: 'Followers';
+	followee: ILocalUser;
 }
 
 interface IDirectRecipe extends IRecipe {
@@ -32,26 +33,24 @@ const isDirect = (recipe: any): recipe is IDirectRecipe =>
 //#endregion
 
 export class DeliverManager {
-	private actor: { id: User['id']; host: null; };
 	private activity: any;
 	private recipes: IRecipe[] = [];
 
 	/**
 	 * Constructor
-	 * @param actor Actor
 	 * @param activity Activity to deliver
 	 */
-	constructor(actor: { id: User['id']; host: null; }, activity: any) {
-		this.actor = actor;
+	constructor(activity: any) {
 		this.activity = activity;
 	}
 
 	/**
 	 * Add recipe for followers deliver
 	 */
-	public addFollowersRecipe() {
+	public addFollowersRecipe(followee: ILocalUser) {
 		const deliver = {
 			type: 'Followers',
+			followee,
 		} as IFollowersRecipe;
 
 		this.addRecipe(deliver);
@@ -89,9 +88,7 @@ export class DeliverManager {
 	 * Execute delivers
 	 */
 	public async execute(deletingUserId?: string) {
-		if (!Users.isLocalUser(this.actor)) return;
-
-		let inboxes = new Set<string>();
+		const inboxes = new Set<string>();
 
 		/*
 		build inbox list
@@ -116,21 +113,25 @@ export class DeliverManager {
 			}
 		}
 
-		if (this.recipes.some(r => isFollowers(r))) {
-			// followers deliver
-			const followers = await Followings.createQueryBuilder('followings')
-				// return either the shared inbox (if available) or the individual inbox
-				.select('COALESCE(followings.followerSharedInbox, followings.followerInbox)', 'inbox')
-				// so we don't have to make our inboxes Set work as hard
-				.distinct(true)
-				// ...for the specific actors followers
-				.where('followings.followeeId = :actorId', { actorId: this.actor.id })
-				// don't deliver to ourselves
-				.andWhere('followings.followerHost IS NOT NULL')
-				.getRawMany();
-
-			followers.forEach(({ inbox }) => inboxes.add(inbox));
-		}
+		await Promise.all(
+			this.recipes.filter(isFollowers)
+			.map(recipe => {
+				// followers deliver
+				return Followings.createQueryBuilder('followings')
+					// return either the shared inbox (if available) or the individual inbox
+					.select('COALESCE(followings.followerSharedInbox, followings.followerInbox)', 'inbox')
+					// so we don't have to make our inboxes Set work as hard
+					.distinct(true)
+					// ...for the specific actors followers
+					.where('followings.followeeId = :actorId', { actorId: recipe.followee.id })
+					// don't deliver to ourselves
+					.andWhere('followings.followerHost IS NOT NULL')
+					.getRawMany()
+					.then(followers =>
+						followers.forEach(({ inbox }) => inboxes.add(inbox))
+					);
+			})
+		);
 
 		this.recipes.filter((recipe): recipe is IDirectRecipe =>
 			// followers recipes have already been processed
@@ -170,9 +171,9 @@ export class DeliverManager {
  * @param activity Activity
  * @param from Followee
  */
-export async function deliverToFollowers(actor: { id: ILocalUser['id']; host: null; }, activity: any) {
-	const manager = new DeliverManager(actor, activity);
-	manager.addFollowersRecipe();
+export async function deliverToFollowers(actor: ILocalUser, activity: any) {
+	const manager = new DeliverManager(activity);
+	manager.addFollowersRecipe(actor);
 	await manager.execute();
 }
 
@@ -181,8 +182,8 @@ export async function deliverToFollowers(actor: { id: ILocalUser['id']; host: nu
  * @param activity Activity
  * @param to Target user
  */
-export async function deliverToUser(actor: { id: ILocalUser['id']; host: null; }, activity: any, to: IRemoteUser) {
-	const manager = new DeliverManager(actor, activity);
+export async function deliverToUser(activity: any, to: IRemoteUser) {
+	const manager = new DeliverManager(activity);
 	manager.addDirectRecipe(to);
 	await manager.execute();
 }

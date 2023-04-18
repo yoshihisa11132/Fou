@@ -335,7 +335,7 @@ export async function sideEffects(user: User, note: Note, silent = false, create
 		if (Users.isLocalUser(user) && !note.localOnly && created) {
 			(async () => {
 				const noteActivity = renderActivity(await renderNoteOrRenoteActivity(note));
-				const dm = new DeliverManager(user, noteActivity);
+				const dm = new DeliverManager(noteActivity);
 
 				// Delivered to remote users who have been mentioned
 				for (const u of mentionedUsers.filter(u => Users.isRemoteUser(u))) {
@@ -368,7 +368,7 @@ export async function sideEffects(user: User, note: Note, silent = false, create
 
 				// Deliver to followers
 				if (['public', 'home', 'followers'].includes(note.visibility)) {
-					dm.addFollowersRecipe();
+					dm.addFollowersRecipe(user);
 				}
 
 				if (['public'].includes(note.visibility)) {

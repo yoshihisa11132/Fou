@@ -60,8 +60,8 @@ export async function deleteNotes(notes: Note[], user?: User): Promise<void> {
 
 	// Compute addressing information.
 	// Since we do not send any actual content, we send all note deletions to everyone.
-	const manager = new DeliverManager(fetchedUser, content);
-	manager.addFollowersRecipe();
+	const manager = new DeliverManager(content);
+	manager.addFollowersRecipe(fetchedUser);
 	manager.addEveryone();
 	// Check mentioned users, since not all may have a shared inbox.
 	await Promise.all(

@@ -130,14 +130,14 @@ export async function createReaction(user: { id: User['id']; host: User['host'];
 	//#region 配信
 	if (Users.isLocalUser(user) && !note.localOnly) {
 		const content = renderActivity(await renderLike(record, note));
-		const dm = new DeliverManager(user, content);
+		const dm = new DeliverManager(content);
 		if (note.userHost !== null) {
 			const reactee = await Users.findOneBy({ id: note.userId });
 			dm.addDirectRecipe(reactee as IRemoteUser);
 		}
 
 		if (['public', 'home', 'followers'].includes(note.visibility)) {
-			dm.addFollowersRecipe();
+			dm.addFollowersRecipe(user);
 		} else if (note.visibility === 'specified') {
 			const visibleUsers = await Promise.all(note.visibleUserIds.map(id => Users.findOneBy({ id })));
 			for (const u of visibleUsers.filter(u => u && Users.isRemoteUser(u))) {

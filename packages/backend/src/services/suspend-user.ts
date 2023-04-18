@@ -16,7 +16,7 @@ export async function doPostSuspend(user: { id: User['id']; host: User['host'] }
 		const content = renderActivity(renderDelete(`${config.url}/users/${user.id}`, user));
 
 		// deliver to all of known network
-		const dm = new DeliverManager(user, content);
+		const dm = new DeliverManager(content);
 		dm.addEveryone();
 		await dm.execute(user.id);
 	}

@@ -46,12 +46,12 @@ export async function deleteReaction(user: { id: User['id']; host: User['host'];
 	//#region 配信
 	if (Users.isLocalUser(user) && !note.localOnly) {
 		const content = renderActivity(renderUndo(await renderLike(exist, note), user));
-		const dm = new DeliverManager(user, content);
+		const dm = new DeliverManager(content);
 		if (note.userHost !== null) {
 			const reactee = await Users.findOneBy({ id: note.userId });
 			dm.addDirectRecipe(reactee as IRemoteUser);
 		}
-		dm.addFollowersRecipe();
+		dm.addFollowersRecipe(user);
 		dm.execute();
 	}
 	//#endregion
