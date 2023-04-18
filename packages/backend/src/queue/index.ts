@@ -8,6 +8,7 @@ import { DriveFile } from '@/models/entities/drive-file.js';
 import { Webhook, webhookEventTypes } from '@/models/entities/webhook.js';
 import { IActivity } from '@/remote/activitypub/type.js';
 import { MINUTE } from '@/const.js';
+import { DbResolver } from '@/remote/activitypub/db-resolver.js';
 
 import processDeliver from './processors/deliver.js';
 import processInbox from './processors/inbox.js';
@@ -96,9 +97,16 @@ webhookDeliverQueue
 	.on('error', (job: any, err: Error) => webhookLogger.error(`error ${err}`))
 	.on('stalled', (job) => webhookLogger.warn(`stalled ${getJobInfo(job)} to=${job.data.to}`));
 
-export function deliver(user: ThinUser, content: unknown, to: string | null, deletingUserId?: string) {
+export async function deliver(_user: ThinUser, content: unknown, to: string | null, deletingUserId?: string) {
 	if (content == null) return null;
 	if (to == null) return null;
+
+	// extract user from the Activity
+	const userUri = content.actor;
+	if (!userUri) throw new Error("Cannot deliver activity without actor.");
+	const user = await new DbResolver().getUserFromApId(userUri);
+	if (!user) throw new Error("Actor not found, cannot deliver.");
+	if (user.host != null) throw new Error("Cannot deliver for remote actor.");
 
 	const data = {
 		user: {

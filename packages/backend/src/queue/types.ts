@@ -9,7 +9,7 @@ export type DeliverJobData = {
 	/** Actor */
 	user: ThinUser;
 	/** Activity */
-	content: unknown;
+	content: IActivity;
 	/** inbox URL to deliver */
 	to: string;
 	/** set if this job is part of a user deletion, on completion or failure the isDeleted field needs to be decremented */
