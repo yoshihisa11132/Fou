@@ -97,7 +97,7 @@ webhookDeliverQueue
 	.on('error', (job: any, err: Error) => webhookLogger.error(`error ${err}`))
 	.on('stalled', (job) => webhookLogger.warn(`stalled ${getJobInfo(job)} to=${job.data.to}`));
 
-export async function deliver(_user: ThinUser, content: unknown, to: string | null, deletingUserId?: string) {
+export async function deliver(content: unknown, to: string | null, deletingUserId?: string) {
 	if (content == null) return null;
 	if (to == null) return null;
 

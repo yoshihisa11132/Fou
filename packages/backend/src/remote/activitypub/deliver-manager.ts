@@ -161,7 +161,7 @@ export class DeliverManager {
 			});
 		}
 
-		filteredInboxes.forEach(inbox => deliver(this.actor, this.activity, inbox, deletingUserId));
+		filteredInboxes.forEach(inbox => deliver(this.activity, inbox, deletingUserId));
 	}
 }
 

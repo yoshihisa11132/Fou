@@ -146,7 +146,7 @@ export default async function(_follower: { id: User['id'] }, _followee: { id: Us
 	if (Users.isRemoteUser(follower) && Users.isLocalUser(followee) && blocked) {
 		// リモートフォローを受けてブロックしていた場合は、エラーにするのではなくRejectを送り返しておしまい。
 		const content = renderActivity(renderReject(renderFollow(follower, followee, requestId), followee));
-		deliver(followee , content, follower.inbox);
+		deliver(content, follower.inbox);
 		return;
 	} else if (Users.isRemoteUser(follower) && Users.isLocalUser(followee) && blocking) {
 		// リモートフォローを受けてブロックされているはずの場合だったら、ブロック解除しておく。
@@ -195,6 +195,6 @@ export default async function(_follower: { id: User['id'] }, _followee: { id: Us
 
 	if (Users.isRemoteUser(follower) && Users.isLocalUser(followee)) {
 		const content = renderActivity(renderAccept(renderFollow(follower, followee, requestId), followee));
-		deliver(followee, content, follower.inbox);
+		deliver(content, follower.inbox);
 	}
 }

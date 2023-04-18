@@ -27,7 +27,7 @@ export async function acceptFollowRequest(followee: User, follower: User): Promi
 
 	if (Users.isRemoteUser(follower) && Users.isLocalUser(followee)) {
 		const content = renderActivity(renderAccept(renderFollow(follower, followee, request.requestId!), followee));
-		deliver(followee, content, follower.inbox);
+		deliver(content, follower.inbox);
 	}
 
 	Users.pack(followee.id, followee, {

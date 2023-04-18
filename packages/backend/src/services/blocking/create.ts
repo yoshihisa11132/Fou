@@ -34,7 +34,7 @@ export default async function(blocker: User, blockee: User): Promise<void> {
 
 	if (Users.isLocalUser(blocker) && Users.isRemoteUser(blockee) && blocker.federateBlocks) {
 		const content = renderActivity(renderBlock(blocking));
-		deliver(blocker, content, blockee.inbox);
+		deliver(content, blockee.inbox);
 	}
 }
 
@@ -78,13 +78,13 @@ async function cancelRequest(follower: User, followee: User): Promise<void> {
 	// Send Undo Follow if followee is remote
 	if (Users.isLocalUser(follower) && Users.isRemoteUser(followee)) {
 		const content = renderActivity(renderUndo(renderFollow(follower, followee), follower));
-		deliver(follower, content, followee.inbox);
+		deliver(content, followee.inbox);
 	}
 
 	// Send Reject if follower is remote
 	if (Users.isRemoteUser(follower) && Users.isLocalUser(followee)) {
 		const content = renderActivity(renderReject(renderFollow(follower, followee, request.requestId!), followee));
-		deliver(followee, content, follower.inbox);
+		deliver(content, follower.inbox);
 	}
 }
 
@@ -125,7 +125,7 @@ async function unFollow(follower: User, followee: User): Promise<void> {
 	// Send Undo Follow if follower is remote
 	if (Users.isLocalUser(follower) && Users.isRemoteUser(followee)) {
 		const content = renderActivity(renderUndo(renderFollow(follower, followee), follower));
-		deliver(follower, content, followee.inbox);
+		deliver(content, followee.inbox);
 	}
 }
 

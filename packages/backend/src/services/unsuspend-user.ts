@@ -32,7 +32,7 @@ export async function doPostUnsuspend(user: User): Promise<void> {
 		}
 
 		for (const inbox of queue) {
-			deliver(user as any, content, inbox);
+			deliver(content, inbox);
 		}
 	}
 }

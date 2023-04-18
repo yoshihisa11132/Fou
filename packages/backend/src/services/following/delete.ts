@@ -52,13 +52,13 @@ export default async function(follower: { id: User['id']; host: User['host']; ur
 
 	if (Users.isLocalUser(follower) && Users.isRemoteUser(followee)) {
 		const content = renderActivity(renderUndo(renderFollow(follower, followee), follower));
-		deliver(follower, content, followee.inbox);
+		deliver(content, followee.inbox);
 	}
 
 	if (Users.isLocalUser(followee) && Users.isRemoteUser(follower)) {
 		// local user has null host
 		const content = renderActivity(renderReject(renderFollow(follower, followee), followee));
-		deliver(followee, content, follower.inbox);
+		deliver(content, follower.inbox);
 	}
 }
 
