@@ -125,7 +125,7 @@ export async function deliver(content: IActivity|IActivity[], to: string | null,
 			user: {
 				id: user.id,
 			},
-			byActor[actor],
+			content: byActor[actor],
 			to,
 			deletingUserId,
 		};
