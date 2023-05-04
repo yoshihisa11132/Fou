@@ -97,7 +97,7 @@ export async function createMessage(user: { id: User['id']; host: User['host']; 
 
 		const activity = renderActivity(renderCreate(await renderNote(note, false, true), note));
 
-		deliver(activity, recipientUser.inbox);
+		await deliver(activity, recipientUser.inbox);
 	}
 	return messageObj;
 }

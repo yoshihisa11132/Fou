@@ -17,7 +17,7 @@ export async function cancelFollowRequest(followee: User, follower: User): Promi
 		const content = renderActivity(renderUndo(renderFollow(follower, followee), follower));
 
 		if (Users.isLocalUser(follower)) {
-			deliver(content, followee.inbox);
+			await deliver(content, followee.inbox);
 		}
 	}
 

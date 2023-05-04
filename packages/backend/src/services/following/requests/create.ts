@@ -64,6 +64,6 @@ export async function createFollowRequest(follower: User, followee: User, reques
 
 	if (Users.isLocalUser(follower) && Users.isRemoteUser(followee)) {
 		const content = renderActivity(renderFollow(follower, followee));
-		deliver(content, followee.inbox);
+		await deliver(content, followee.inbox);
 	}
 }
