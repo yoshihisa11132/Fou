@@ -5,6 +5,7 @@ import { publishUserEvent } from '@/services/stream.js';
 import define from '@/server/api/define.js';
 import { ApiError } from '@/server/api/error.js';
 import { getUser } from '@/server/api/common/getters.js';
+import { createMute } from '@/services/mute/create.js';
 
 export const meta = {
 	tags: ['account'],
@@ -51,19 +52,7 @@ export default define(meta, paramDef, async (ps, user) => {
 		return;
 	}
 
-	// Create mute
-	await Mutings.insert({
-		id: genId(),
-		createdAt: new Date(),
-		expiresAt: ps.expiresAt ? new Date(ps.expiresAt) : null,
-		muterId: muter.id,
-		muteeId: mutee.id,
-	} as Muting);
+	const expiresAt = ps.expiresAt ? new Date(ps.expiresAt) : null;
 
-	publishUserEvent(user.id, 'mute', mutee);
-
-	NoteWatchings.delete({
-		userId: muter.id,
-		noteUserId: mutee.id,
-	});
+	await createMute(muter, mutee, expiresAt);
 });
