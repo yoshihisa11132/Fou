@@ -1,4 +1,4 @@
-import unblock from '@/services/blocking/delete.js';
+import { deleteBlock } from '@/services/blocking/delete.js';
 import { IRemoteUser } from '@/models/entities/user.js';
 import { Users } from '@/models/index.js';
 import { IBlock } from '@/remote/activitypub/type.js';
@@ -16,6 +16,6 @@ export default async (actor: IRemoteUser, activity: IBlock): Promise<string> => 
 		return 'skip: ブロック解除しようとしているユーザーはローカルユーザーではありません';
 	}
 
-	await unblock(await Users.findOneByOrFail({ id: actor.id }), blockee);
+	await deleteBlock(await Users.findOneByOrFail({ id: actor.id }), blockee);
 	return 'ok';
 };

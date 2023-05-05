@@ -12,7 +12,7 @@ import { perUserFollowingChart } from '@/services/chart/index.js';
 import { genId } from '@/misc/gen-id.js';
 import { getActiveWebhooks } from '@/misc/webhook-cache.js';
 
-export default async function(blocker: User, blockee: User): Promise<void> {
+export async function createBlock(blocker: User, blockee: User): Promise<void> {
 	await Promise.all([
 		cancelRequest(blocker, blockee),
 		cancelRequest(blockee, blocker),

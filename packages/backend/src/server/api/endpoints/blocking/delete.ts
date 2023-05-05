@@ -1,4 +1,4 @@
-import deleteBlocking from '@/services/blocking/delete.js';
+import { deleteBlock } from '@/services/blocking/delete.js';
 import { Blockings, Users } from '@/models/index.js';
 import { HOUR } from '@/const.js';
 import define from '@/server/api/define.js';
@@ -53,7 +53,7 @@ export default define(meta, paramDef, async (ps, user) => {
 	if (!exist) throw new ApiError('NOT_BLOCKING');
 
 	// Delete blocking
-	await deleteBlocking(blocker, blockee);
+	await deleteBlock(blocker, blockee);
 
 	return await Users.pack(blockee.id, blocker, {
 		detail: true,

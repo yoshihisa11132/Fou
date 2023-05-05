@@ -1,4 +1,4 @@
-import create from '@/services/blocking/create.js';
+import { createBlock } from '@/services/blocking/create.js';
 import { Blockings, NoteWatchings, Users } from '@/models/index.js';
 import { HOUR } from '@/const.js';
 import define from '@/server/api/define.js';
@@ -52,7 +52,7 @@ export default define(meta, paramDef, async (ps, user) => {
 
 	if (blocked) throw new ApiError('ALREADY_BLOCKING');
 
-	await create(blocker, blockee);
+	await createBlock(blocker, blockee);
 
 	return await Users.pack(blockee.id, blocker, {
 		detail: true,

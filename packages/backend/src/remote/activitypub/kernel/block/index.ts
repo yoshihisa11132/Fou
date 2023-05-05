@@ -1,4 +1,4 @@
-import block from '@/services/blocking/create.js';
+import { createBlock } from '@/services/blocking/create.js';
 import { IRemoteUser } from '@/models/entities/user.js';
 import { Users } from '@/models/index.js';
 import { DbResolver } from '@/remote/activitypub/db-resolver.js';
@@ -18,6 +18,6 @@ export default async (actor: IRemoteUser, activity: IBlock): Promise<string> => 
 		return 'skip: blockee is not local';
 	}
 
-	await block(await Users.findOneByOrFail({ id: actor.id }), await Users.findOneByOrFail({ id: blockee.id }));
+	await createBlock(await Users.findOneByOrFail({ id: actor.id }), await Users.findOneByOrFail({ id: blockee.id }));
 	return 'ok';
 };

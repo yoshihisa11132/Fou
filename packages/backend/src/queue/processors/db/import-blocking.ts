@@ -8,7 +8,7 @@ import { Users, DriveFiles } from '@/models/index.js';
 import { DbUserImportJobData } from '@/queue/types.js';
 import { queueLogger } from '@/queue/logger.js';
 import { resolveUser } from '@/remote/resolve-user.js';
-import block from '@/services/blocking/create.js';
+import { createBlock } from '@/services/blocking/create.js';
 
 const logger = queueLogger.createSubLogger('import-blocking');
 
@@ -63,7 +63,7 @@ export async function importBlocking(job: Bull.Job<DbUserImportJobData>, done: a
 
 			logger.info(`Block[${linenum}] ${target.id} ...`);
 
-			await block(user, target);
+			await createBlock(user, target);
 		} catch (e) {
 			logger.warn(`Error in line:${linenum} ${e}`);
 		}
