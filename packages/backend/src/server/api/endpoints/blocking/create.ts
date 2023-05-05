@@ -54,14 +54,7 @@ export default define(meta, paramDef, async (ps, user) => {
 
 	await create(blocker, blockee);
 
-	NoteWatchings.delete({
-		userId: blocker.id,
-		noteUserId: blockee.id,
-	});
-
 	return await Users.pack(blockee.id, blocker, {
 		detail: true,
 	});
-
-	publishUserEvent(user.id, 'block', blockee);
 });

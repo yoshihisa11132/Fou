@@ -7,7 +7,7 @@ import { deliver, webhookDeliver } from '@/queue/index.js';
 import renderReject from '@/remote/activitypub/renderer/reject.js';
 import { Blocking } from '@/models/entities/blocking.js';
 import { User } from '@/models/entities/user.js';
-import { Blockings, Users, FollowRequests, Followings, UserListJoinings, UserLists } from '@/models/index.js';
+import { Blockings, Users, FollowRequests, Followings, NoteWatchings, UserListJoinings, UserLists } from '@/models/index.js';
 import { perUserFollowingChart } from '@/services/chart/index.js';
 import { genId } from '@/misc/gen-id.js';
 import { getActiveWebhooks } from '@/misc/webhook-cache.js';
@@ -19,6 +19,8 @@ export default async function(blocker: User, blockee: User): Promise<void> {
 		unFollow(blocker, blockee),
 		unFollow(blockee, blocker),
 		removeFromList(blockee, blocker),
+		removeWatchings(blocker, blockee),
+		removeWatchings(blockee, blocker),
 	]);
 
 	const blocking = {
@@ -32,9 +34,13 @@ export default async function(blocker: User, blockee: User): Promise<void> {
 
 	await Blockings.insert(blocking);
 
-	if (Users.isLocalUser(blocker) && Users.isRemoteUser(blockee) && blocker.federateBlocks) {
-		const content = renderActivity(renderBlock(blocking));
-		deliver(blocker, content, blockee.inbox);
+	if (Users.isLocalUser(blocker)) {
+		publishUserEvent(blocker.id, 'block', blockee);
+
+		if (Users.isRemoteUser(blockee) && blocker.federateBlocks) {
+			const content = renderActivity(renderBlock(blocking));
+			deliver(blocker, content, blockee.inbox);
+		}
 	}
 }
 
@@ -140,4 +146,11 @@ async function removeFromList(listOwner: User, user: User): Promise<void> {
 			userId: user.id,
 		});
 	}
+}
+
+async function removeWatchings(watcher: User, watched: User): Promise<void> {
+	await NoteWatchings.delete({
+		userId: watcher.id,
+		noteUserId: watched.id,
+	});
 }
