@@ -22,6 +22,7 @@ import { truncate } from '@/misc/truncate.js';
 import { StatusError } from '@/misc/fetch.js';
 import { uriPersonCache } from '@/services/user-cache.js';
 import { publishInternalEvent } from '@/services/stream.js';
+import { move } from '@/services/move.js';
 import { db } from '@/db/postgre.js';
 import { fromHtml } from '@/mfm/from-html.js';
 import { Resolver } from '@/remote/activitypub/resolver.js';
@@ -341,6 +342,12 @@ export async function updatePerson(value: IObject | string, resolver: Resolver):
 	const object = await resolver.resolve(value);
 
 	const person = await validateActor(object, resolver);
+
+	if (person.movedTo != null && exist.movedToId == null) {
+		// The person was not moved before, but is now. Therefore the person has moved.
+		// The move was already verified in validateActor.
+		move(exist.id, person.movedTo.id);
+	}
 
 	apLogger.info(`Updating the Person: ${person.id}`);
 
