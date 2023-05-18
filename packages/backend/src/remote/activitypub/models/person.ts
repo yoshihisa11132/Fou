@@ -35,6 +35,39 @@ const nameLength = 128;
 const summaryLength = 2048;
 
 /**
+ * Checks that a move of the given origin actor is accepted by the target actor, using the given resolver.
+ * @returns null if move is invalid, or the internal representation of the move target if the move is valid.
+ */
+export async function verifyMove(origin: IRemoteUser, target: string | IObject, resolver: Resolver): Promise<User | null> {
+	// actor already moved
+	if (origin.movedToId != null) return null;
+
+	/* the database resolver can not be used here, because:
+	* 1. It must be ensured that the latest data is used.
+	* 2. The AP representation is needed, because `alsoKnownAs`
+	*    is not stored in the database.
+	* This also checks whether the move target is blocked
+	*/
+	const resolvedTarget = resolver.resolve(target);
+
+	// move resolvedTarget is not an actor
+	if (!isActor(resolvedTarget)) return null;
+
+	// moved to self, this check is necessary to avoid infinite loops during verification
+	if (origin.uri === resolvedTarget.id) return null;
+
+	// move destination has not accepted
+	if (!Array.isArray(resolvedTarget.alsoKnownAs) || !resolvedTarget.alsoKnownAs.includes(actor.uri)) return null;
+
+	// ensure the user exists (or is fetched)
+	const movedTo = await resolvePerson(resolvedTarget.id, resolver, resolvedTarget);
+	// move target is already suspended
+	if (movedTo.isSuspended) return null;
+
+	return movedTo;
+}
+
+/**
  * Validate and convert to actor object
  * @param x Fetched object
  * @param uri Fetch target URI
@@ -62,19 +95,22 @@ async function validateActor(x: IObject, resolver: Resolver): Promise<IActor> {
 	}
 
 	if (x.movedTo !== undefined) {
-		if (!(typeof x.movedTo === 'string' && x.movedTo.length > 0)) {
-			throw new Error('invalid Actor: wrong movedTo');
+		try {
+			const target = await verifyMove(x, x.movedTo, resolver);
+			if (null == target) {
+				throw new Error("invalid move");
+			} else {
+				await resolvePerson(x.movedTo, resolver)
+					.then(moveTarget => {
+						x.movedTo = moveTarget.id
+					});
+			}
+		} catch (err) {
+			apLogger.warn(`cannot find move target "${x.movedTo}", error: ${err.toString()}`);
+			// This move is invalid.
+			// Don't treat the whole actor as invalid, just ignore/remove the movedTo.
+			delete x.movedTo;
 		}
-		if (x.movedTo === uri) {
-			throw new Error('invalid Actor: moved to self');
-		}
-		// This may throw an exception if we cannot resolve the move target.
-		// If we are processing an incoming activity, this is desired behaviour
-		// because that will cause the activity to be retried.
-		await resolvePerson(x.movedTo, resolver)
-			.then(moveTarget => {
-				x.movedTo = moveTarget.id
-			});
 	}
 
 	if (!(typeof x.inbox === 'string' && x.inbox.length > 0)) {

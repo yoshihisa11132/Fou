@@ -1,6 +1,6 @@
 import { IsNull } from 'typeorm';
 import { IRemoteUser } from '@/models/entities/user.js';
-import { resolvePerson } from '@/remote/activitypub/models/person.js';
+import { verifyMove } from '@/remote/activitypub/models/person.js';
 import { Blockings, Followings, Mutings, Users } from '@/models/index.js';
 import { createNotification } from '@/services/create-notification.js';
 import { createBlock } from '@/services/blocking/create.js';
@@ -12,30 +12,15 @@ export async function move(actor: IRemoteUser, activity: IMove, resolver: Resolv
 	// actor is not move origin
 	if (activity.object == null || getApId(activity.object) !== actor.uri) return;
 
-	// actor already moved
-	if (actor.movedTo != null) return;
-
 	// no move target
 	if (activity.target == null) return;
 
-	/* the database resolver can not be used here, because:
-	 * 1. It must be ensured that the latest data is used.
-	 * 2. The AP representation is needed, because `alsoKnownAs`
-	 *    is not stored in the database.
-	 * This also checks whether the move target is blocked
-	 */
-	const movedToAp = await resolver.resolve(getApId(activity.target));
+	const movedTo = await verifyMove(actor, activity.target, resolver);
 
-	// move target is not an actor
-	if (!isActor(movedToAp)) return;
-
-	// move destination has not accepted
-	if (!Array.isArray(movedToAp.alsoKnownAs) || !movedToAp.alsoKnownAs.includes(actor.id)) return;
-
-	// ensure the user exists
-	const movedTo = await resolvePerson(getApId(activity.target), resolver, movedToAp);
-	// move target is already suspended
-	if (movedTo.isSuspended) return;
+	if (movedTo == null) {
+		// invalid or unnaccepted move
+		return;
+	}
 
 	// process move for local followers
 	const followings = await Followings.find({
