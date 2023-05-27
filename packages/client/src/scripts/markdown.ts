@@ -15,11 +15,11 @@ const sanitizerOptions = {
 	},
 	allowedStyles: {
 		span: {
-			'--mfm-speed': [/^\d*\.?\d+m?s$/],
-			'--mfm-deg': [/^\d*\.?\d+$/],
-			'--mfm-x': [/^\d*\.?\d+$/],
-			'--mfm-y': [/^\d*\.?\d+$/],
-			'--mfm-color': [/^#([0-9a-f]{3}){1,2}$/i],
+			'--mfm-speed': [/^\d*\.?\d+m?s$/], // decimal number (e.g. 1 or 1.0 or .1) followed by "ms" or "s"
+			'--mfm-deg': [/^\d*\.?\d+$/], // decimal number
+			'--mfm-x': [/^\d*\.?\d+$/], // decimal number
+			'--mfm-y': [/^\d*\.?\d+$/], // decimal number
+			'--mfm-color': [/^#([0-9a-f]{3}){1,2}$/i], // CSS hex color code without alpha
 		},
 	},
 	allowedSchemes: sanitizeHtml.defaults.allowedSchemes.concat([ 'gopher', 'gemini' ]),
@@ -94,7 +94,7 @@ marked.use({
 			tokenizer(src) {
 				const match = src.match(/^@([-_a-z0-9]+)(?:@(\p{L}+(?:[-.]*\p{L}+)*))?/iu);
 				if (!match) return;
-				
+
 				return {
 					type: 'mention',
 					raw: match[0],
