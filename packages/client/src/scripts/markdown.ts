@@ -314,6 +314,40 @@ marked.use({
 				return `<span class="mfm-${token.fn}" style="${argsCss}"${argsAttrs}>${this.parser.parseInline(token.tokens)}</span>`;
 			},
 		},
+		{
+			name: 'silent-link',
+			level: 'inline',
+			start(src) { return src.startsWith('?['),
+			tokenizer(src) {
+				// a markdown [title](link) with prepended question mark to signify
+				// that no link preview should be shown for this link
+
+				// regular expression abridged from marked.js internals
+				const match = src.match(/^\?\[((?:\\.|[^\[\]\\])*)\]\(\s*(?:<((?:\\.|[^\n<>\\])+)>|([^\s\x00-\x1f]*))\s*\)/);
+				if (!match) return;
+
+				try {
+					// match group 2 when enclosed in <> and match group 3 otherwise
+					const href = new URL(match[2] ?? match[3]).href;
+				} catch {
+					// invalid URL
+					return;
+				}
+
+				const token = {
+					type: 'silent-link',
+					raw: match[0],
+					tokens: [],
+					href,
+				};
+				this.lexer.inline(match[1], token.tokens);
+				return token;
+			},
+			renderer(token) {
+				const secureUrl = encodeURI(token.href).replaceAll("%25", "%");
+				return `<a href="${secureUrl}" rel="nofollow">${this.parser.parseInline(token.tokens)}</a>`;
+			},
+		},
 	],
 });
 
