@@ -17,6 +17,9 @@ const sanitizerOptions = {
 		span: {
 			'--mfm-speed': [/^\d*\.?\d+m?s$/],
 			'--mfm-deg': [/^\d*\.?\d+$/],
+			'--mfm-x': [/^\d*\.?\d+$/],
+			'--mfm-y': [/^\d*\.?\d+$/],
+			'--mfm-color': [/^#([0-9a-f]{3}){1,2}$/i],
 		},
 	},
 	allowedSchemes: sanitizeHtml.defaults.allowedSchemes.concat([ 'gopher', 'gemini' ]),
@@ -259,7 +262,15 @@ marked.use({
 							if (arg.includes('=')) {
 								// split once at first equal sign
 								const equalsIdx = arg.indexOf('=');
-								return [arg.slice(0, equalsIdx), arg.slice(equalsIdx + 1)];
+								const key = arg.slice(0, equalsIdx);
+								let value = arg.slice(equalsIdx + 1);
+
+								// add initial octothorpe to hex color code if necessary
+								if (key === 'color' && !value.startsWith('#')) {
+									value = '#' + value;
+								}
+
+								return [key, value];
 							} else {
 								return [arg, null];
 							}

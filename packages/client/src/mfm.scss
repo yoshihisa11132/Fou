@@ -71,6 +71,22 @@
 	}
 }
 
+.mfm-position {
+	transform: translate(calc(var(--mfm-x, 0) * 1em), calc(var(--mfm-y, 0) * 1em));
+}
+
+.mfm-scale {
+	transform: scale(var(--mfm-x, 1), var(--mfm-y, 1));
+}
+
+.mfm-fg {
+	color: var(--mfm-color, #f00);
+}
+
+.mfm-bg {
+	background-color: var(--mfm-color, #0f0);
+}
+
 .markdown-container {
 	blockquote {
 		display: block;
