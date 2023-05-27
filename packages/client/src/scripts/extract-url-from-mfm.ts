@@ -5,9 +5,9 @@ import { unique } from '@/scripts/array';
 // [ http://a/#1, http://a/#2, http://b/#3 ] => [ http://a/#1, http://b/#3 ]
 const removeHash = (x: string) => x.replace(/#[^#]*$/, '');
 
-export function extractUrlFromMfm(nodes: mfm.MfmNode[], respectSilentFlag = true): string[] {
+export function extractUrlFromMfm(nodes: mfm.MfmNode[]): string[] {
 	const urlNodes = mfm.extract(nodes, (node) => {
-		return (node.type === 'url') || (node.type === 'link' && (!respectSilentFlag || !node.props.silent));
+		return (node.type === 'url') || (node.type === 'link' && !node.props.silent);
 	});
 	const urls: string[] = unique(urlNodes.map(x => x.props.url));
 
