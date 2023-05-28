@@ -129,6 +129,7 @@ export type DriveFolder = TODO;
 export type Note = {
 	id: ID;
 	createdAt: DateString;
+	updatedAt: DateString | null;
 	text: string | null;
 	cw: string | null;
 	user: User;
@@ -203,6 +204,11 @@ export type Notification = {
 	note: Note;
 } | {
 	type: 'pollVote';
+	user: User;
+	userId: User['id'];
+	note: Note;
+} | {
+	type: 'update';
 	user: User;
 	userId: User['id'];
 	note: Note;

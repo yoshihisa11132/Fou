@@ -1304,6 +1304,7 @@ _notification:
     reaction: "Reactions"
     pollVote: "Votes on polls"
     pollEnded: "Polls ending"
+    updated: "Watched Note was updated"
     receiveFollowRequest: "Received follow requests"
     followRequestAccepted: "Accepted follow requests"
     groupInvited: "Group invitations"
