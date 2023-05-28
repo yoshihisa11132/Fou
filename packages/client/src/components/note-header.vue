@@ -9,6 +9,9 @@
 		<MkA class="created-at" :to="notePage(note)">
 			<MkTime :time="note.createdAt"/>
 		</MkA>
+		<span class="updated-at" v-if="note.updatedAt != null" ref="updatedEl">
+			<i class="fas fa-pencil"></i>
+		</span>
 		<MkVisibility :note="note"/>
 	</div>
 </header>
@@ -69,6 +72,10 @@ defineProps<{
 		flex-shrink: 0;
 		margin-left: auto;
 		font-size: 0.9em;
+
+		> .updated-at {
+			margin-left: var(--marginHalf);
+		}
 	}
 }
 </style>

@@ -79,6 +79,12 @@
 					<MkA class="created-at" :to="notePage(appearNote)">
 						<MkTime :time="appearNote.createdAt" mode="detail"/>
 					</MkA>
+					<!-- TODO link to edit history? -->
+					<div v-if="appearNote.updatedAt != null">
+						<i class="fas fa-pencil"></i>
+						{{ i18n.ts.updatedAt }}
+						<MkTime :time="appearNote.updatedAt" mode="detail"/>
+					</div>
 				</div>
 				<XReactionsViewer ref="reactionsViewer" :note="appearNote"/>
 				<button class="button _button" @click="reply()">
