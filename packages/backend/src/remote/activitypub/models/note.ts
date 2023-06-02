@@ -1,14 +1,14 @@
 import promiseLimit from 'promise-limit';
-
+import * as foundkey from 'foundkey-js';
 import config from '@/config/index.js';
 import post from '@/services/note/create.js';
-import { IRemoteUser } from '@/models/entities/user.js';
+import { User, IRemoteUser } from '@/models/entities/user.js';
 import { unique, toArray, toSingle } from '@/prelude/array.js';
 import { vote } from '@/services/note/polls/vote.js';
 import { DriveFile } from '@/models/entities/drive-file.js';
 import { deliverQuestionUpdate } from '@/services/note/polls/update.js';
 import { extractPunyHost } from '@/misc/convert-host.js';
-import { Polls, MessagingMessages } from '@/models/index.js';
+import { Polls, MessagingMessages, Notes } from '@/models/index.js';
 import { Note } from '@/models/entities/note.js';
 import { Emoji } from '@/models/entities/emoji.js';
 import { genId } from '@/misc/gen-id.js';
@@ -27,6 +27,7 @@ import { resolveImage } from './image.js';
 import { extractApHashtags, extractQuoteUrl, extractEmojis } from './tag.js';
 import { extractPollFromQuestion } from './question.js';
 import { extractApMentions } from './mention.js';
+import { normalizeForSearch } from '@/misc/normalize-for-search.js';
 
 export function validateNote(object: IObject): Error | null {
 	if (object == null) {
@@ -323,4 +324,44 @@ export async function resolveNote(value: string | IObject, resolver: Resolver): 
 	} finally {
 		unlock();
 	}
+}
+
+/**
+ * Update a note.
+ *
+ * If the target Note is not registered, it will be ignored.
+ */
+export async function updateNote(value: IPost, actor: User, resolver: Resolver): Promise<Note | null> {
+	const err = validateNote(value);
+	if (err) {
+		apLogger.error(`${err.message}`);
+		throw new Error('invalid updated note');
+	}
+
+	const uri = getApId(value);
+	const exists = await Notes.findOneBy({ uri });
+	if (exists == null) return null;
+
+	let quoteUri = null;
+	if (exists.renoteId && !foundkey.entities.isPureRenote(exists)) {
+		const quote = await Notes.findOneBy({ id: exists.renoteId });
+		quoteUri = quote.uri;
+	}
+
+	// process content and update attached files (e.g. also image descriptions)
+	const processedContent = await processContent(actor, value, quoteUri, resolver);
+
+	// update note content itself
+	await Notes.update(exists.id, {
+		updatedAt: new Date(),
+
+		cw: processedContent.cw,
+		fileIds: processedContent.files.map(file => file.id),
+		attachedFileTypes: processedContent.files.map(file => file.type),
+		text: processedContent.text,
+		emojis: processedContent.apEmoji,
+		tags: processedContent.apHashtags.map(tag => normalizeForSearch(tag)),
+		url: processedContent.url,
+		name: processedContent.name,
+	});
 }
