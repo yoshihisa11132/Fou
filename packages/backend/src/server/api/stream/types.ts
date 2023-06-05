@@ -128,6 +128,9 @@ export interface NoteStreamTypes {
 		reaction: string;
 		userId: User['id'];
 	};
+	updated: {
+		note: Note;
+	};
 }
 type NoteStreamEventTypes = {
 	[key in keyof NoteStreamTypes]: {

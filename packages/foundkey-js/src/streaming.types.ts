@@ -142,6 +142,12 @@ export type NoteUpdatedEvent = {
 		choice: number;
 		userId: User['id'];
 	};
+} | {
+	id: Note['id'];
+	type: 'updated';
+	body: {
+		note: Note;
+	};
 };
 
 export type BroadcastEvents = {

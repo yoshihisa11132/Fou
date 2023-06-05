@@ -3,7 +3,7 @@ import { WebSocket } from 'ws';
 import { readNote } from '@/services/note/read.js';
 import { User } from '@/models/entities/user.js';
 import { Channel as ChannelModel } from '@/models/entities/channel.js';
-import { Followings, Mutings, RenoteMutings, UserProfiles, ChannelFollowings, Blockings } from '@/models/index.js';
+import { Followings, Mutings, Notes, RenoteMutings, UserProfiles, ChannelFollowings, Blockings } from '@/models/index.js';
 import { AccessToken } from '@/models/entities/access-token.js';
 import { UserProfile } from '@/models/entities/user-profile.js';
 import { publishChannelStream, publishGroupMessagingStream, publishMessagingStream } from '@/services/stream.js';
@@ -14,6 +14,7 @@ import { channels } from './channels/index.js';
 import Channel from './channel.js';
 import { StreamEventEmitter, StreamMessages } from './types.js';
 import Logger from '@/services/logger.js';
+import { IdentifiableError } from '@/misc/identifiable-error.js';
 
 const logger = new Logger('streaming');
 
@@ -254,11 +255,43 @@ export class Connection {
 	}
 
 	private async onNoteStreamMessage(data: StreamMessages['note']['payload']) {
-		this.sendMessageToWs('noteUpdated', {
-			id: data.body.id,
-			type: data.type,
-			body: data.body.body,
-		});
+		if (data.type === 'updated') {
+			const note = data.body.body.note;
+			// FIXME analogous to Channel.withPackedNote, but for some reason, the note
+			// stream is not handled as a channel but instead handled at the top level
+			// so this code is duplicated here I guess.
+			try {
+				// because `note` was previously JSON.stringify'ed, the fields that
+				// were objects before are now strings and have to be restored or
+				// removed from the object
+				note.createdAt = new Date(note.createdAt);
+				note.reply = null;
+				note.renote = null;
+				note.user = null;
+				note.channel = null;
+
+				const packed = await Notes.pack(note, this.user, { detail: true });
+
+				this.sendMessageToWs('noteUpdated', {
+					id: data.body.id,
+					type: 'updated',
+					body: { note: packed },
+				});
+			} catch (err) {
+				if (err instanceof IdentifiableError && err.id === '9725d0ce-ba28-4dde-95a7-2cbb2c15de24') {
+					// skip: note not visible to user
+					return;
+				} else {
+					logger.error(err);
+				}
+			}
+		} else {
+			this.sendMessageToWs('noteUpdated', {
+				id: data.body.id,
+				type: data.type,
+				body: data.body.body,
+			});
+		}
 	}
 
 	/**
