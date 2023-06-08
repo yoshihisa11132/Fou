@@ -28,6 +28,7 @@ import { extractApHashtags, extractQuoteUrl, extractEmojis } from './tag.js';
 import { extractPollFromQuestion } from './question.js';
 import { extractApMentions } from './mention.js';
 import { normalizeForSearch } from '@/misc/normalize-for-search.js';
+import { sideEffects } from '@/services/note/side-effects.js';
 
 export function validateNote(object: IObject): Error | null {
 	if (object == null) {
@@ -364,4 +365,6 @@ export async function updateNote(value: IPost, actor: User, resolver: Resolver):
 		url: processedContent.url,
 		name: processedContent.name,
 	});
+
+	await sideEffects(actor, await Notes.findOneByOrFail({ id: exists.id }), false, false);
 }
