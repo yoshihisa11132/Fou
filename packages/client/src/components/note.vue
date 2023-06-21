@@ -403,6 +403,7 @@ function focusAfter() {
 	> .article {
 		display: flex;
 		padding: 28px 32px 18px;
+		overflow: clip;
 
 		> .avatar {
 			flex-shrink: 0;
@@ -483,6 +484,8 @@ function focusAfter() {
 
 					> .text {
 						overflow-wrap: break-word;
+						position: relative;
+						z-index: -1;
 
 						> .reply {
 							color: var(--accent);

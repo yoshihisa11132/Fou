@@ -53,6 +53,7 @@ const replies: foundkey.entities.Note[] = props.conversation?.filter(item => ite
 .wrpstxzv {
 	padding: 16px 32px;
 	font-size: 0.9em;
+	overflow: clip;
 
 	&.max-width_450px {
 		padding: 14px 16px;
