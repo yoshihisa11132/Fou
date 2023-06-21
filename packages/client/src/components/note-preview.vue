@@ -7,7 +7,7 @@
 		</div>
 		<div class="body">
 			<div class="content">
-				<Mfm :text="text.trim()" :author="$i" :i="$i"/>
+				<Mfm :text="text.trim()" :author="$i"/>
 			</div>
 		</div>
 	</div>

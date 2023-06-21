@@ -51,7 +51,7 @@
 						</div>
 					</div>
 					<div class="description">
-						<Mfm v-if="user.description" :text="user.description" :is-note="false" :author="user" :i="$i" :custom-emojis="user.emojis"/>
+						<Mfm v-if="user.description" :text="user.description" :is-note="false" :author="user" :custom-emojis="user.emojis"/>
 						<p v-else class="empty">{{ i18n.ts.noAccountDescription }}</p>
 					</div>
 					<div class="fields system">
@@ -74,7 +74,7 @@
 								<Mfm :text="field.name" :plain="true" :custom-emojis="user.emojis" :colored="false"/>
 							</dt>
 							<dd class="value">
-								<Mfm :text="field.value" :author="user" :i="$i" :custom-emojis="user.emojis" :colored="false"/>
+								<Mfm :text="field.value" :author="user" :custom-emojis="user.emojis" :colored="false"/>
 							</dd>
 						</dl>
 					</div>

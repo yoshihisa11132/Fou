@@ -5,7 +5,7 @@
 		<div v-if="clip">
 			<div class="okzinsic _panel">
 				<div v-if="clip.description" class="description">
-					<Mfm :text="clip.description" :is-note="false" :i="$i"/>
+					<Mfm :text="clip.description" :is-note="false"/>
 				</div>
 				<div class="user">
 					<MkAvatar :user="clip.user" class="avatar" :show-indicator="true"/> <MkUserName :user="clip.user" :nowrap="false"/>

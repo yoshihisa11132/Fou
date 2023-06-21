@@ -11,7 +11,7 @@
 				<p class="username"><MkAcct :user="user"/></p>
 			</div>
 			<div class="description">
-				<Mfm v-if="user.description" :text="user.description" :author="user" :i="$i" :custom-emojis="user.emojis"/>
+				<Mfm v-if="user.description" :text="user.description" :author="user" :custom-emojis="user.emojis"/>
 			</div>
 			<div class="status">
 				<div>

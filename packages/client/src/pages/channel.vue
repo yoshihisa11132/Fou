@@ -19,7 +19,7 @@
 					<div class="fade"></div>
 				</div>
 				<div v-if="channel.description" class="description">
-					<Mfm :text="channel.description" :is-note="false" :i="$i"/>
+					<Mfm :text="channel.description" :is-note="false"/>
 				</div>
 			</div>
 

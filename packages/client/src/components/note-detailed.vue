@@ -49,19 +49,19 @@
 		<div class="main">
 			<div class="body">
 				<p v-if="appearNote.cw != null" class="cw">
-					<Mfm v-if="appearNote.cw != ''" class="text" :text="appearNote.cw" :author="appearNote.user" :i="$i" :custom-emojis="appearNote.emojis"/>
+					<Mfm v-if="appearNote.cw != ''" class="text" :text="appearNote.cw" :author="appearNote.user" :custom-emojis="appearNote.emojis"/>
 					<XCwButton v-model="showContent" :note="appearNote"/>
 				</p>
 				<div v-show="appearNote.cw == null || showContent" class="content">
 					<div class="text">
 						<MkA v-if="appearNote.replyId" class="reply" :to="`/notes/${appearNote.replyId}`"><i class="fas fa-reply"></i></MkA>
-						<Mfm v-if="appearNote.text" :text="appearNote.text" :author="appearNote.user" :i="$i" :custom-emojis="appearNote.emojis"/>
+						<Mfm v-if="appearNote.text" :text="appearNote.text" :author="appearNote.user" :custom-emojis="appearNote.emojis"/>
 						<a v-if="appearNote.renote != null" class="rp">RN:</a>
 						<div v-if="translating || translation" class="translation">
 							<MkLoading v-if="translating" mini/>
 							<div v-else class="translated">
 								<b>{{ i18n.t('translatedFrom', { x: translation.sourceLang }) }}: </b>
-								<Mfm :text="translation.text" :author="appearNote.user" :i="$i" :custom-emojis="appearNote.emojis"/>
+								<Mfm :text="translation.text" :author="appearNote.user" :custom-emojis="appearNote.emojis"/>
 							</div>
 						</div>
 					</div>
