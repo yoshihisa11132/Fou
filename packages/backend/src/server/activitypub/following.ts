@@ -82,7 +82,6 @@ export default async (ctx: Router.RouterContext) => {
 		// index page
 		const rendered = renderOrderedCollection(partOf, user.followingCount, `${partOf}?page=true`);
 		ctx.body = renderActivity(rendered);
-		ctx.set('Cache-Control', 'public, max-age=180');
 		setResponseType(ctx);
 	}
 };

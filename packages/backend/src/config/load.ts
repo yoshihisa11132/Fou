@@ -61,6 +61,7 @@ export function loadConfig(): Config {
 		proxyRemoteFiles: false,
 		maxFileSize: 262144000, // 250 MiB
 		maxNoteTextLength: 3000,
+		allowUnsignedFetches: false,
 	}, config);
 
 	mixin.version = meta.version;

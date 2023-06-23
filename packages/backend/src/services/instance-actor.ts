@@ -1,5 +1,5 @@
 import { IsNull } from 'typeorm';
-import { ILocalUser } from '@/models/entities/user.js';
+import { ILocalUser, User } from '@/models/entities/user.js';
 import { Users } from '@/models/index.js';
 import { getSystemUser } from './system-user.js';
 
@@ -16,4 +16,8 @@ export async function getInstanceActor(): Promise<ILocalUser> {
 	}
 
 	return instanceActor;
+}
+
+export function isInstanceActor(user: User): boolean {
+	return user.username === ACTOR_USERNAME && user.host === null;
 }

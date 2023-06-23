@@ -4,6 +4,7 @@ import { IRemoteUser } from '@/models/entities/user.js';
 import { UserPublickey } from '@/models/entities/user-publickey.js';
 import { uriPersonCache, userByIdCache } from '@/services/user-cache.js';
 import { createPerson } from '@/remote/activitypub/models/person.js';
+import { Resolver } from '@/remote/activitypub/resolver.js';
 
 export type AuthUser = {
 	user: IRemoteUser;
@@ -29,8 +30,8 @@ function authUserFromApId(uri: string): Promise<AuthUser | null> {
 		});
 }
 
-export async function getAuthUser(keyId: string, actorUri: string, resolver: Resolver): Promise<AuthUser | null> {
-	let authUser = await publicKeyCache.fetch(keyId)
+export async function authUserFromKeyId(keyId: string): Promise<AuthUser | null> {
+	return await publicKeyCache.fetch(keyId)
 		.then(async key => {
 			if (!key) return null;
 			else return {
@@ -38,6 +39,10 @@ export async function getAuthUser(keyId: string, actorUri: string, resolver: Res
 				key,
 			};
 		});
+}
+
+export async function getAuthUser(keyId: string, actorUri: string, resolver: Resolver): Promise<AuthUser | null> {
+	let authUser = await authUserFromKeyId(keyId);
 	if (authUser != null) return authUser;
 
 	authUser = await authUserFromApId(actorUri);

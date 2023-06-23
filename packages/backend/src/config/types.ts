@@ -68,6 +68,8 @@ export type Source = {
 		notFound?: string;
 		error?: string;
 	};
+
+	allowUnsignedFetches?: boolean;
 };
 
 /**

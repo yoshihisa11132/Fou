@@ -20,6 +20,8 @@ import Outbox from './activitypub/outbox.js';
 import Followers from './activitypub/followers.js';
 import Following from './activitypub/following.js';
 import Featured from './activitypub/featured.js';
+import { SignatureValidationResult, validateFetchSignature } from './activitypub/fetch-signature.js';
+import { isInstanceActor } from '@/services/instance-actor.js';
 
 // Init router
 const router = new Router();
@@ -59,6 +61,33 @@ export function setResponseType(ctx: Router.RouterContext): void {
 	}
 }
 
+async function handleSignature(ctx: Router.RouterContext): Promise<boolean> {
+	const result = await validateFetchSignature(ctx.req);
+	switch (result) {
+		// Fetch signature verification is disabled.
+		case 'always':
+			ctx.set('Cache-Control', 'public, max-age=180');
+			return true;
+		// Fetch signature verification succeeded.
+		case 'valid':
+			ctx.set('Cache-Control', 'no-store');
+			return true;
+		case 'missing':
+		case 'invalid':
+			// This would leak information on blocks. Only use for debugging.
+			// ctx.status = 400;
+			// break;
+		// eslint-disable-next-line no-fallthrough
+		case 'rejected':
+		default:
+			ctx.status = 403;
+			break;
+	}
+
+	ctx.set('Cache-Control', 'no-store');
+	return false;
+}
+
 // inbox
 router.post('/inbox', json(), inbox);
 router.post('/users/:user/inbox', json(), inbox);
@@ -66,6 +95,7 @@ router.post('/users/:user/inbox', json(), inbox);
 // note
 router.get('/notes/:note', async (ctx, next) => {
 	if (!isActivityPubReq(ctx)) return await next();
+	if (!(await handleSignature(ctx))) return;
 
 	const note = await Notes.findOneBy({
 		id: ctx.params.note,
@@ -89,7 +119,6 @@ router.get('/notes/:note', async (ctx, next) => {
 	}
 
 	ctx.body = renderActivity(await renderNote(note, false));
-	ctx.set('Cache-Control', 'public, max-age=180');
 	setResponseType(ctx);
 });
 
@@ -103,6 +132,7 @@ router.get('/notes/:note/activity', async ctx => {
 		ctx.redirect(`/notes/${ctx.params.note}`);
 		return;
 	}
+	if (!(await handleSignature(ctx))) return;
 
 	const note = await Notes.findOneBy({
 		id: ctx.params.note,
@@ -117,21 +147,32 @@ router.get('/notes/:note/activity', async ctx => {
 	}
 
 	ctx.body = renderActivity(await renderNoteOrRenoteActivity(note));
-	ctx.set('Cache-Control', 'public, max-age=180');
 	setResponseType(ctx);
 });
 
 // outbox
-router.get('/users/:user/outbox', Outbox);
+router.get('/users/:user/outbox', async ctx => {
+	if (!(await handleSignature(ctx))) return;
+	return await Outbox(ctx);
+});
 
 // followers
-router.get('/users/:user/followers', Followers);
+router.get('/users/:user/followers', async ctx => {
+	if (!(await handleSignature(ctx))) return;
+	return await Followers(ctx);
+});
 
 // following
-router.get('/users/:user/following', Following);
+router.get('/users/:user/following', async ctx => {
+	if (!(await handleSignature(ctx))) return;
+	return await Following(ctx);
+});
 
 // featured
-router.get('/users/:user/collections/featured', Featured);
+router.get('/users/:user/collections/featured', async ctx => {
+	if (!(await handleSignature(ctx))) return;
+	return await Featured(ctx);
+});
 
 // publickey
 router.get('/users/:user/publickey', async ctx => {
@@ -166,7 +207,6 @@ async function userInfo(ctx: Router.RouterContext, user: User | null): Promise<v
 	}
 
 	ctx.body = renderActivity(await renderPerson(user as ILocalUser));
-	ctx.set('Cache-Control', 'public, max-age=180');
 	setResponseType(ctx);
 }
 
@@ -181,11 +221,26 @@ router.get('/users/:user', async (ctx, next) => {
 		isSuspended: false,
 	});
 
+	// Allow fetching the instance actor without any HTTP signature.
+	// Only on this route, as it is the canonical route.
+	// If the user could not be resolved, or is not the instance actor,
+	// validate and enforce signatures.
+	if (user == null || !isInstanceActor(user))
+	{
+		if (!(await handleSignature(ctx))) return;
+	}
+	else if (isInstanceActor(user))
+	{
+		// Set cache at all times for instance actors.
+		ctx.set('Cache-Control', 'public, max-age=180');
+	}
+
 	await userInfo(ctx, user);
 });
 
 router.get('/@:user', async (ctx, next) => {
 	if (!isActivityPubReq(ctx)) return await next();
+	if (!(await handleSignature(ctx))) return;
 
 	const user = await Users.findOneBy({
 		usernameLower: ctx.params.user.toLowerCase(),
@@ -198,6 +253,9 @@ router.get('/@:user', async (ctx, next) => {
 
 // emoji
 router.get('/emojis/:emoji', async ctx => {
+	// Enforcing HTTP signatures on Emoji objects could cause problems for
+	// other software that might use those objects for copying custom emoji.
+
 	const emoji = await Emojis.findOneBy({
 		host: IsNull(),
 		name: ctx.params.emoji,
@@ -215,6 +273,7 @@ router.get('/emojis/:emoji', async ctx => {
 
 // like
 router.get('/likes/:like', async ctx => {
+	if (!(await handleSignature(ctx))) return;
 	const reaction = await NoteReactions.findOneBy({ id: ctx.params.like });
 
 	if (reaction == null) {
@@ -233,12 +292,12 @@ router.get('/likes/:like', async ctx => {
 	}
 
 	ctx.body = renderActivity(await renderLike(reaction, note));
-	ctx.set('Cache-Control', 'public, max-age=180');
 	setResponseType(ctx);
 });
 
 // follow
 router.get('/follows/:follower/:followee', async ctx => {
+	if (!(await handleSignature(ctx))) return;
 	// This may be used before the follow is completed, so we do not
 	// check if the following exists.
 
@@ -259,7 +318,6 @@ router.get('/follows/:follower/:followee', async ctx => {
 	}
 
 	ctx.body = renderActivity(renderFollow(follower, followee));
-	ctx.set('Cache-Control', 'public, max-age=180');
 	setResponseType(ctx);
 });
 

@@ -36,6 +36,5 @@ export default async (ctx: Router.RouterContext) => {
 	);
 
 	ctx.body = renderActivity(rendered);
-	ctx.set('Cache-Control', 'public, max-age=180');
 	setResponseType(ctx);
 };
