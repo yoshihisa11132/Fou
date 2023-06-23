@@ -6,7 +6,7 @@ import Logger from '@/services/logger.js';
 import { registerOrFetchInstanceDoc } from '@/services/register-or-fetch-instance-doc.js';
 import { Instances } from '@/models/index.js';
 import { apRequestChart, federationChart, instanceChart } from '@/services/chart/index.js';
-import { toPuny, extractDbHost } from '@/misc/convert-host.js';
+import { extractDbHost } from '@/misc/convert-host.js';
 import { getApId } from '@/remote/activitypub/type.js';
 import { fetchInstanceMetadata } from '@/services/fetch-instance-metadata.js';
 import { Resolver } from '@/remote/activitypub/resolver.js';
@@ -34,7 +34,7 @@ export default async (job: Bull.Job<InboxJobData>): Promise<string> => {
 		return `Old keyId is no longer supported. ${keyIdLower}`;
 	}
 
-	const host = toPuny(new URL(keyIdLower).hostname);
+	const host = extractDbHost(keyIdLower)
 
 	// Stop if the host is blocked.
 	if (await shouldBlockInstance(host)) {
