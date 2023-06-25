@@ -153,3 +153,9 @@ redis:
 #  info: /twemoji/1f440.svg
 #  notFound: /twemoji/2049.svg
 #  error: /twemoji/1f480.svg
+
+# Whether it should be allowed to fetch content in ActivityPub form without HTTP signatures.
+# It is recommended to leave this as default to improve the effectiveness of instance blocks.s
+# However, note that while this prevents fetching in ActivityPub form, it could still be scraped
+# from the API or other representations if the other side is determined to do so.
+#allowUnsignedFetches: false
