@@ -334,6 +334,6 @@ export default defineComponent({
 		}).flat();
 
 		// Parse ast to DOM
-		return h('span', genEl(ast));
+		return h('div', genEl(ast));
 	},
 });

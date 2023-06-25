@@ -175,6 +175,7 @@ withDefaults(defineProps<{
 <style lang="scss" scoped>
 .havbbuyv {
 	white-space: pre-wrap;
+	overflow: hidden;
 
 	&.nowrap {
 		white-space: pre;
