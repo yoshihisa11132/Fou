@@ -390,7 +390,6 @@ if (appearNote.replyId) {
 	> .article {
 		padding: 32px;
 		font-size: 1.1em;
-		overflow: clip;
 
 		> .header {
 			display: flex;
@@ -451,8 +450,6 @@ if (appearNote.replyId) {
 				> .content {
 					> .text {
 						overflow-wrap: break-word;
-						position: relative;
-						z-index: -1;
 
 						> .reply {
 							color: var(--accent);
