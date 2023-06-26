@@ -20,8 +20,11 @@ import Outbox from './activitypub/outbox.js';
 import Followers from './activitypub/followers.js';
 import Following from './activitypub/following.js';
 import Featured from './activitypub/featured.js';
-import { SignatureValidationResult, validateFetchSignature } from './activitypub/fetch-signature.js';
 import { isInstanceActor } from '@/services/instance-actor.js';
+import { getUser } from './api/common/getters.js';
+import config from '@/config/index.js';
+import { verifyHttpSignature } from '@/remote/http-signature.js';
+import { Resolver } from '@/remote/activitypub/resolver.js';
 
 // Init router
 const router = new Router();
@@ -62,30 +65,33 @@ export function setResponseType(ctx: Router.RouterContext): void {
 }
 
 async function handleSignature(ctx: Router.RouterContext): Promise<boolean> {
-	const result = await validateFetchSignature(ctx.req);
-	switch (result) {
+	if (config.allowUnsignedFetches) {
 		// Fetch signature verification is disabled.
-		case 'always':
-			ctx.set('Cache-Control', 'public, max-age=180');
-			return true;
-		// Fetch signature verification succeeded.
-		case 'valid':
-			ctx.set('Cache-Control', 'no-store');
-			return true;
-		case 'missing':
-		case 'invalid':
-			// This would leak information on blocks. Only use for debugging.
-			// ctx.status = 400;
-			// break;
-		// eslint-disable-next-line no-fallthrough
-		case 'rejected':
-		default:
-			ctx.status = 403;
-			break;
-	}
+		ctx.set('Cache-Control', 'public, max-age=180');
+		return true;
+	} else {
+		let verified;
+		try {
+			let signature = httpSignature.parseRequest(ctx.req);
+			verified = await verifyHttpSignature(signature, new Resolver());
+		} catch (e) {
+			verified = { status: 'missing' };
+		}
 
-	ctx.set('Cache-Control', 'no-store');
-	return false;
+		switch (verified.status) {
+			// Fetch signature verification succeeded.
+			case 'valid':
+				ctx.set('Cache-Control', 'no-store');
+				return true;
+			case 'missing':
+			case 'invalid':
+			case 'rejected':
+			default:
+				ctx.status = 403;
+				ctx.set('Cache-Control', 'no-store');
+				return false;
+		}
+	}
 }
 
 // inbox
@@ -150,31 +156,29 @@ router.get('/notes/:note/activity', async ctx => {
 	setResponseType(ctx);
 });
 
+async function requireHttpSignature(ctx: Router.Context, next: () => Promise<void>) {
+	if (!(await handleSignature(ctx))) {
+		return;
+	} else {
+		await next();
+	}
+}
+
 // outbox
-router.get('/users/:user/outbox', async ctx => {
-	if (!(await handleSignature(ctx))) return;
-	return await Outbox(ctx);
-});
+router.get('/users/:user/outbox', requireHttpSignature, Outbox);
 
 // followers
-router.get('/users/:user/followers', async ctx => {
-	if (!(await handleSignature(ctx))) return;
-	return await Followers(ctx);
-});
+router.get('/users/:user/followers',  requireHttpSignature, Followers);
 
 // following
-router.get('/users/:user/following', async ctx => {
-	if (!(await handleSignature(ctx))) return;
-	return await Following(ctx);
-});
+router.get('/users/:user/following', requireHttpSignature, Following);
 
 // featured
-router.get('/users/:user/collections/featured', async ctx => {
-	if (!(await handleSignature(ctx))) return;
-	return await Featured(ctx);
-});
+router.get('/users/:user/collections/featured', requireHttpSignature, Featured);
 
 // publickey
+// This does not require HTTP signatures in order for other instances
+// to be able to verify our own signatures.
 router.get('/users/:user/publickey', async ctx => {
 	const userId = ctx.params.user;
 

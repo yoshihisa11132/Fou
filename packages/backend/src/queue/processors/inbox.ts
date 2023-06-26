@@ -1,6 +1,5 @@
 import { URL } from 'node:url';
 import Bull from 'bull';
-import httpSignature from '@peertube/http-signature';
 import { perform } from '@/remote/activitypub/perform.js';
 import Logger from '@/services/logger.js';
 import { registerOrFetchInstanceDoc } from '@/services/register-or-fetch-instance-doc.js';
@@ -11,17 +10,18 @@ import { getApId } from '@/remote/activitypub/type.js';
 import { fetchInstanceMetadata } from '@/services/fetch-instance-metadata.js';
 import { Resolver } from '@/remote/activitypub/resolver.js';
 import { LdSignature } from '@/remote/activitypub/misc/ld-signature.js';
-import { getAuthUser } from '@/remote/activitypub/misc/auth-user.js';
-import { StatusError } from '@/misc/fetch.js';
+import { AuthUser, getAuthUser } from '@/remote/activitypub/misc/auth-user.js';
 import { InboxJobData } from '@/queue/types.js';
 import { shouldBlockInstance } from '@/misc/should-block-instance.js';
+import { verifyHttpSignature } from '@/remote/http-signature.js';
 
 const logger = new Logger('inbox');
 
-// ユーザーのinboxにアクティビティが届いた時の処理
+// Processing when an activity arrives in the user's inbox
 export default async (job: Bull.Job<InboxJobData>): Promise<string> => {
 	const signature = job.data.signature;	// HTTP-signature
 	const activity = job.data.activity;
+	const resolver = new Resolver();
 
 	//#region Log
 	const info = Object.assign({}, activity) as any;
@@ -29,46 +29,12 @@ export default async (job: Bull.Job<InboxJobData>): Promise<string> => {
 	logger.debug(JSON.stringify(info, null, 2));
 	//#endregion
 
-	const keyIdLower = signature.keyId.toLowerCase();
-	if (keyIdLower.startsWith('acct:')) {
-		return `Old keyId is no longer supported. ${keyIdLower}`;
-	}
-
-	const host = extractDbHost(keyIdLower)
-
-	// Stop if the host is blocked.
-	if (await shouldBlockInstance(host)) {
-		return `Blocked request: ${host}`;
-	}
-
-	const resolver = new Resolver();
-
-	let authUser;
-	try {
-		authUser = await getAuthUser(signature.keyId, getApId(activity.actor), resolver);
-	} catch (e) {
-		if (e instanceof StatusError) {
-			if (e.isClientError) {
-				return `skip: Ignored deleted actors on both ends ${activity.actor} - ${e.statusCode}`;
-			} else {
-				throw new Error(`Error in actor ${activity.actor} - ${e.statusCode || e}`);
-			}
-		}
-	}
-
-	if (authUser == null) {
-		// Key not found? Unacceptable!
-		return 'skip: failed to resolve user';
-	} else {
-		// Found key!
-	}
-
-	// verify the HTTP Signature
-	const httpSignatureValidated = httpSignature.verifySignature(signature, authUser.key.keyPem);
+	const validated = await verifyHttpSignature(signature, resolver, getApId(activity.actor));
+	let authUser = validated.authUser;
 
 	// The signature must be valid.
 	// The signature must also match the actor otherwise anyone could sign any activity.
-	if (!httpSignatureValidated || authUser.user.uri !== activity.actor) {
+	if (validated.status !== 'valid' || validated.authUser.user.uri !== activity.actor) {
 		// Last resort: LD-Signature
 		if (activity.signature) {
 			if (activity.signature.type !== 'RsaSignature2017') {
@@ -106,6 +72,11 @@ export default async (job: Bull.Job<InboxJobData>): Promise<string> => {
 			return `skip: http-signature verification failed and no LD-Signature. keyId=${signature.keyId}`;
 		}
 	}
+
+	// authUser cannot be null at this point:
+	// either it was already not null because the HTTP signature was valid
+	// or, if the LD signature was not verified, this function will already have returned.
+	authUser = authUser as AuthUser;
 
 	// Verify that the actor's host is not blocked
 	const signerHost = extractDbHost(authUser.user.uri!);
