@@ -1,6 +1,6 @@
 import { ILocalUser } from '@/models/entities/user.js';
 import { getInstanceActor } from '@/services/instance-actor.js';
-import { extractDbHost, isSelfHost } from '@/misc/convert-host.js';
+import { extractPunyHost, isSelfHost } from '@/misc/convert-host.js';
 import { Notes, NoteReactions, Polls, Users } from '@/models/index.js';
 import renderNote from '@/remote/activitypub/renderer/note.js';
 import { renderLike } from '@/remote/activitypub/renderer/like.js';
@@ -50,7 +50,7 @@ export class Resolver {
 
 		if (typeof value !== 'string') {
 			if (typeof value.id !== 'undefined') {
-				const host = extractDbHost(getApId(value));
+				const host = extractPunyHost(getApId(value));
 				if (await shouldBlockInstance(host)) {
 					throw new Error('instance is blocked');
 				}
@@ -73,7 +73,7 @@ export class Resolver {
 		}
 		this.history.add(value);
 
-		const host = extractDbHost(value);
+		const host = extractPunyHost(value);
 		if (isSelfHost(host)) {
 			return await this.resolveLocal(value);
 		}

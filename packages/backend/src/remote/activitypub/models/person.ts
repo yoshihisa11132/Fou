@@ -13,7 +13,7 @@ import { genId } from '@/misc/gen-id.js';
 import { instanceChart, usersChart } from '@/services/chart/index.js';
 import { UserPublickey } from '@/models/entities/user-publickey.js';
 import { isDuplicateKeyValueError } from '@/misc/is-duplicate-key-value-error.js';
-import { extractDbHost } from '@/misc/convert-host.js';
+import { extractPunyHost } from '@/misc/convert-host.js';
 import { UserProfile } from '@/models/entities/user-profile.js';
 import { toArray } from '@/prelude/array.js';
 import { fetchInstanceMetadata } from '@/services/fetch-instance-metadata.js';
@@ -57,7 +57,7 @@ async function validateActor(x: IObject, resolver: Resolver): Promise<IActor> {
 
 	// This check is security critical.
 	// Without this check, an entry could be inserted into UserPublickey for a local user.
-	if (extractDbHost(uri) === extractDbHost(config.url)) {
+	if (extractPunyHost(uri) === extractPunyHost(config.url)) {
 		throw new StatusError('cannot resolve local user', 400, 'cannot resolve local user');
 	}
 
@@ -108,7 +108,7 @@ async function validateActor(x: IObject, resolver: Resolver): Promise<IActor> {
 
 		// This is a security critical check to not insert or change an entry of
 		// UserPublickey to point to a local key id.
-		if (extractDbHost(uri) !== extractDbHost(x.publicKey.id)) {
+		if (extractPunyHost(uri) !== extractPunyHost(x.publicKey.id)) {
 			throw new Error('invalid Actor: publicKey.id has different host');
 		}
 	}
@@ -157,7 +157,7 @@ export async function createPerson(value: string | IObject, resolver: Resolver):
 
 	apLogger.info(`Creating the Person: ${person.id}`);
 
-	const host = extractDbHost(object.id);
+	const host = extractPunyHost(object.id);
 
 	const { fields } = analyzeAttachments(person.attachment || []);
 

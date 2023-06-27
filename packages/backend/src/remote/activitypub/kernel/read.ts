@@ -1,5 +1,5 @@
 import { IRemoteUser } from '@/models/entities/user.js';
-import { isSelfHost, extractDbHost } from '@/misc/convert-host.js';
+import { isSelfHost, extractPunyHost } from '@/misc/convert-host.js';
 import { MessagingMessages } from '@/models/index.js';
 import { readUserMessagingMessage } from '@/server/api/common/read-messaging-message.js';
 import { IRead, getApId } from '../type.js';
@@ -7,7 +7,7 @@ import { IRead, getApId } from '../type.js';
 export const performReadActivity = async (actor: IRemoteUser, activity: IRead): Promise<string> => {
 	const id = await getApId(activity.object);
 
-	if (!isSelfHost(extractDbHost(id))) {
+	if (!isSelfHost(extractPunyHost(id))) {
 		return `skip: Read to foreign host (${id})`;
 	}
 

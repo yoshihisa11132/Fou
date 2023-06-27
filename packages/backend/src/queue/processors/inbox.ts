@@ -5,7 +5,7 @@ import Logger from '@/services/logger.js';
 import { registerOrFetchInstanceDoc } from '@/services/register-or-fetch-instance-doc.js';
 import { Instances } from '@/models/index.js';
 import { apRequestChart, federationChart, instanceChart } from '@/services/chart/index.js';
-import { extractDbHost } from '@/misc/convert-host.js';
+import { extractPunyHost } from '@/misc/convert-host.js';
 import { getApId } from '@/remote/activitypub/type.js';
 import { fetchInstanceMetadata } from '@/services/fetch-instance-metadata.js';
 import { Resolver } from '@/remote/activitypub/resolver.js';
@@ -64,7 +64,7 @@ export default async (job: Bull.Job<InboxJobData>): Promise<string> => {
 			}
 
 			// Stop if the host is blocked.
-			const ldHost = extractDbHost(authUser.user.uri);
+			const ldHost = extractPunyHost(authUser.user.uri);
 			if (await shouldBlockInstance(ldHost)) {
 				return `Blocked request: ${ldHost}`;
 			}
@@ -79,14 +79,14 @@ export default async (job: Bull.Job<InboxJobData>): Promise<string> => {
 	authUser = authUser as AuthUser;
 
 	// Verify that the actor's host is not blocked
-	const signerHost = extractDbHost(authUser.user.uri!);
+	const signerHost = extractPunyHost(authUser.user.uri!);
 	if (await shouldBlockInstance(signerHost)) {
 		return `Blocked request: ${signerHost}`;
 	}
 
 	if (typeof activity.id === 'string') {
 		// Verify that activity and actor are from the same host.
-		const activityIdHost = extractDbHost(activity.id);
+		const activityIdHost = extractPunyHost(activity.id);
 		if (signerHost !== activityIdHost) {
 			return `skip: signerHost(${signerHost}) !== activity.id host(${activityIdHost}`;
 		}

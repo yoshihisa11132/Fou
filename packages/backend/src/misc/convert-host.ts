@@ -11,7 +11,7 @@ export function isSelfHost(host: string | null): boolean {
 	return toPuny(config.host) === toPuny(host);
 }
 
-export function extractDbHost(uri: string): string {
+export function extractPunyHost(uri: string): string {
 	const url = new URL(uri);
 	return toPuny(url.hostname);
 }

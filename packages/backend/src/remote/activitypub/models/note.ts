@@ -7,7 +7,7 @@ import { unique, toArray, toSingle } from '@/prelude/array.js';
 import { vote } from '@/services/note/polls/vote.js';
 import { DriveFile } from '@/models/entities/drive-file.js';
 import { deliverQuestionUpdate } from '@/services/note/polls/update.js';
-import { extractDbHost } from '@/misc/convert-host.js';
+import { extractPunyHost } from '@/misc/convert-host.js';
 import { Polls, MessagingMessages } from '@/models/index.js';
 import { Note } from '@/models/entities/note.js';
 import { Emoji } from '@/models/entities/emoji.js';
@@ -45,9 +45,9 @@ export function validateNote(object: IObject): Error | null {
 	}
 
 	// Check that the server is authorized to act on behalf of this author.
-	const expectHost = extractDbHost(id);
+	const expectHost = extractPunyHost(id);
 	const attributedToHost = object.attributedTo
-		? extractDbHost(getOneApId(object.attributedTo))
+		? extractPunyHost(getOneApId(object.attributedTo))
 		: null;
 	if (attributedToHost !== expectHost) {
 		return new Error(`invalid Note: attributedTo has different host. expected: ${expectHost}, actual: ${attributedToHost}`);
@@ -93,7 +93,7 @@ async function processContent(actor: IRemoteUser, note: IPost, quoteUri: string 
 		text = fromHtml(note.content, quoteUri);
 	}
 
-	const emojis = await extractEmojis(note.tag || [], extractDbHost(getApId(note))).catch(e => {
+	const emojis = await extractEmojis(note.tag || [], extractPunyHost(getApId(note))).catch(e => {
 		apLogger.info(`extractEmojis: ${e}`);
 		return [] as Emoji[];
 	});
@@ -299,7 +299,7 @@ export async function resolveNote(value: string | IObject, resolver: Resolver): 
 	if (uri == null) throw new Error('missing uri');
 
 	// Interrupt if blocked.
-	if (await shouldBlockInstance(extractDbHost(uri))) throw new StatusError('host blocked', 451, `host ${extractDbHost(uri)} is blocked`);
+	if (await shouldBlockInstance(extractPunyHost(uri))) throw new StatusError('host blocked', 451, `host ${extractPunyHost(uri)} is blocked`);
 
 	const unlock = await getApLock(uri);
 

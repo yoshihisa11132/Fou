@@ -1,7 +1,7 @@
 import { IRemoteUser } from '@/models/entities/user.js';
 import { toArray } from '@/prelude/array.js';
 import { Resolver } from '@/remote/activitypub/resolver.js';
-import { extractDbHost } from '@/misc/convert-host.js';
+import { extractPunyHost } from '@/misc/convert-host.js';
 import { shouldBlockInstance } from '@/misc/should-block-instance.js';
 import { apLogger } from '../logger.js';
 import { IObject, isCreate, isDelete, isUpdate, isRead, isFollow, isAccept, isReject, isAdd, isRemove, isAnnounce, isLike, isUndo, isBlock, isCollectionOrOrderedCollection, isCollection, isFlag, isMove, getApId } from '../type.js';
@@ -42,7 +42,7 @@ async function performOneActivity(actor: IRemoteUser, activity: IObject, resolve
 	if (actor.isSuspended) return;
 
 	if (typeof activity.id !== 'undefined') {
-		const host = extractDbHost(getApId(activity));
+		const host = extractPunyHost(getApId(activity));
 		if (await shouldBlockInstance(host)) return;
 	}
 

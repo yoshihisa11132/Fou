@@ -1,6 +1,6 @@
 import { IRemoteUser } from '@/models/entities/user.js';
 import { getApLock } from '@/misc/app-lock.js';
-import { extractDbHost } from '@/misc/convert-host.js';
+import { extractPunyHost } from '@/misc/convert-host.js';
 import { StatusError } from '@/misc/fetch.js';
 import { Resolver } from '@/remote/activitypub/resolver.js';
 import { createNote, fetchNote } from '@/remote/activitypub/models/note.js';
@@ -18,7 +18,7 @@ export default async function(resolver: Resolver, actor: IRemoteUser, note: IObj
 		}
 
 		if (typeof note.id === 'string') {
-			if (extractDbHost(actor.uri) !== extractDbHost(note.id)) {
+			if (extractPunyHost(actor.uri) !== extractPunyHost(note.id)) {
 				return 'skip: host in actor.uri !== note.id';
 			}
 		}

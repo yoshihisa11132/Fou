@@ -1,5 +1,5 @@
 import { URL } from 'node:url';
-import { extractDbHost } from "@/misc/convert-host.js";
+import { extractPunyHost } from "@/misc/convert-host.js";
 import { shouldBlockInstance } from "@/misc/should-block-instance.js";
 import httpSignature from "@peertube/http-signature";
 import { Resolver } from "./activitypub/resolver.js";
@@ -49,7 +49,7 @@ export async function verifyHttpSignature(signature: httpSignature.IParsedSignat
 	const keyIdLower = signature.keyId.toLowerCase();
 	if (keyIdLower.startsWith('acct:')) return { status: 'invalid', authUser: null };
 
-	const host = extractDbHost(keyIdLower);
+	const host = extractPunyHost(keyIdLower);
 
 	// Reject if the host is blocked.
 	if (await shouldBlockInstance(host)) return { status: 'rejected', authUser: null };
