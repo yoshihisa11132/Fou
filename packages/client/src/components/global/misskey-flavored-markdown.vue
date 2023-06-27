@@ -175,6 +175,8 @@ withDefaults(defineProps<{
 <style lang="scss" scoped>
 .havbbuyv {
 	white-space: pre-wrap;
+	display: inline-block;
+	vertical-align: top;
 	overflow: hidden;
 
 	&.nowrap {
