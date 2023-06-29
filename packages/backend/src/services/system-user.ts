@@ -12,7 +12,7 @@ import { db } from '@/db/postgre.js';
 import generateNativeUserToken from '@/server/api/common/generate-native-user-token.js';
 
 export async function getSystemUser(username: string): Promise<User> {
-	const exist = await Users.findBy({
+	const exist = await Users.findOneBy({
 		usernameLower: username.toLowerCase(),
 		host: IsNull(),
 	});
