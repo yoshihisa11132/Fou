@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import Bull from 'bull';
-import unzipper from 'unzipper';
+import decompress from 'decompress';
 
 import { db } from '@/db/postgre.js';
 import { createTempDir } from '@/misc/create-temp.js';
@@ -42,44 +42,41 @@ export async function importCustomEmojis(job: Bull.Job<DbUserImportJobData>, don
 	}
 
 	const outputPath = path + '/emojis';
-	const unzipStream = fs.createReadStream(destPath);
-	const extractor = unzipper.Extract({ path: outputPath });
-	extractor.on('close', async () => {
-		const metaRaw = fs.readFileSync(outputPath + '/meta.json', 'utf-8');
-		const meta = JSON.parse(metaRaw);
-
-		for (const record of meta.emojis) {
-			if (!record.downloaded) continue;
-			if (!/^[a-zA-Z0-9_]+?([a-zA-Z0-9\.]+)?$/.test(record.fileName)) {
-				this.logger.error(`invalid filename: ${record.fileName}, skipping in emoji import`);
-				continue;
-			}
-			const emojiInfo = record.emoji;
-			const emojiPath = outputPath + '/' + record.fileName;
-			await Emojis.delete({
-				name: emojiInfo.name,
-			});
-			const driveFile = await addFile({ user: null, path: emojiPath, name: record.fileName, force: true });
-			await Emojis.insert({
-				id: genId(),
-				updatedAt: new Date(),
-				name: emojiInfo.name,
-				category: emojiInfo.category,
-				host: null,
-				aliases: emojiInfo.aliases,
-				originalUrl: driveFile.url,
-				publicUrl: driveFile.webpublicUrl ?? driveFile.url,
-				type: driveFile.webpublicType ?? driveFile.type,
-			});
-		}
-
-		await db.queryResultCache!.remove(['meta_emojis']);
-
-		cleanup();
-
-		logger.succ('Imported');
-		done();
-	});
-	unzipStream.pipe(extractor);
 	logger.succ(`Unzipping to ${outputPath}`);
+	await decompress(destPath, outputPath);
+
+	const metaRaw = fs.readFileSync(outputPath + '/meta.json', 'utf-8');
+	const meta = JSON.parse(metaRaw);
+
+	for (const record of meta.emojis) {
+		if (!record.downloaded) continue;
+		if (!/^[a-zA-Z0-9_]+?([a-zA-Z0-9\.]+)?$/.test(record.fileName)) {
+			this.logger.error(`invalid filename: ${record.fileName}, skipping in emoji import`);
+			continue;
+		}
+		const emojiInfo = record.emoji;
+		const emojiPath = outputPath + '/' + record.fileName;
+		await Emojis.delete({
+			name: emojiInfo.name,
+		});
+		const driveFile = await addFile({ user: null, path: emojiPath, name: record.fileName, force: true });
+		await Emojis.insert({
+			id: genId(),
+			updatedAt: new Date(),
+			name: emojiInfo.name,
+			category: emojiInfo.category,
+			host: null,
+			aliases: emojiInfo.aliases,
+			originalUrl: driveFile.url,
+			publicUrl: driveFile.webpublicUrl ?? driveFile.url,
+			type: driveFile.webpublicType ?? driveFile.type,
+		});
+	}
+
+	await db.queryResultCache!.remove(['meta_emojis']);
+
+	cleanup();
+
+	logger.succ('Imported');
+	done();
 }
