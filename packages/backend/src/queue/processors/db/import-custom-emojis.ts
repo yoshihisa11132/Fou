@@ -4,12 +4,12 @@ import unzipper from 'unzipper';
 
 import { db } from '@/db/postgre.js';
 import { createTempDir } from '@/misc/create-temp.js';
-import { downloadUrl } from '@/misc/download-url.js';
 import { genId } from '@/misc/gen-id.js';
 import { DriveFiles, Emojis } from '@/models/index.js';
 import { DbUserImportJobData } from '@/queue/types.js';
 import { queueLogger } from '@/queue/logger.js';
 import { addFile } from '@/services/drive/add-file.js';
+import { copyFileTo } from '@/services/drive/read-file.js';
 
 const logger = queueLogger.createSubLogger('import-custom-emojis');
 
@@ -33,7 +33,7 @@ export async function importCustomEmojis(job: Bull.Job<DbUserImportJobData>, don
 
 	try {
 		fs.writeFileSync(destPath, '', 'binary');
-		await downloadUrl(file.url, destPath);
+		await copyFileTo(file, destPath);
 	} catch (e) { // TODO: 何度か再試行
 		if (e instanceof Error || typeof e === 'string') {
 			logger.error(e);
