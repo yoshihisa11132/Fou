@@ -344,7 +344,7 @@ export async function sideEffects(user: User, note: Note, silent = false, create
 
 				// If the post is a reply and the poster is a local user and the poster of the post to which you are replying is a remote user, deliver
 				if (note.replyId) {
-					const subquery = Notes.createaQueryBuilder()
+					const subquery = Notes.createQueryBuilder()
 						.select('userId')
 						.where('"id" = :replyId', { replyId: note.replyId });
 					const u = await Users.createQueryBuilder()
@@ -356,7 +356,7 @@ export async function sideEffects(user: User, note: Note, silent = false, create
 
 				// If the post is a Renote and the poster is a local user and the poster of the original Renote post is a remote user, deliver
 				if (note.renoteId) {
-					const subquery = Notes.createaQueryBuilder()
+					const subquery = Notes.createQueryBuilder()
 						.select('userId')
 						.where('"id" = :renoteId', { renoteId: note.renoteId });
 					const u = await Users.createQueryBuilder()
