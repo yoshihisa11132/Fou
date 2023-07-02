@@ -11,6 +11,33 @@ Unreleased changes should not be listed in this file.
 Instead, run `git shortlog --format='%h %s' --group=trailer:changelog <last tag>..` to see unreleased changes; replace `<last tag>` with the tag you wish to compare from.
 If you are a contributor, please read [CONTRIBUTING.md, section "Changelog Trailer"](./CONTRIBUTING.md#changelog-trailer) on what to do instead.
 
+## 13.0.0-preview6 - 2023-07-02
+
+## Added
+- **BREAKING** activitypub: validate fetch signatures
+  Fetching the ActivityPub representation of something now requires a valid HTTP signature.
+- client: add MFM functions `position`, `scale`, `fg`, `bg`
+- server: add webhook stat to nodeinfo
+- activitypub: handle incoming Update Note activities
+
+## Changed
+- client: change followers only icon to closed lock
+- client: disable sound for received note by default
+- client: always forbid MFM overflow
+- make mutes case insensitive
+- activitypub: improve JSON-LD context
+  The context now properly notes the `@type`s of defined attributes.
+- docker: only publish port on localhost
+
+## Fixed
+- server: fix internal download in emoji import
+- server: replace unzipper with decompress
+
+## Removed
+- migrate note favorites to clips
+  If you previously had favorites they will now be in a clip called "⭐".
+  If you want to add a note as a "favorite" you can use the menu item "Clip".
+
 ## 13.0.0-preview5 - 2023-05-23
 This release contains 6 breaking changes and 1 security update.
 
