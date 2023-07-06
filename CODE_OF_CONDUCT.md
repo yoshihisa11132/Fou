@@ -61,7 +61,9 @@ representative at an online or offline event.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement via email at
-johann@qwertqwefsday.eu and/or toast@bunkerlabs.net .
+johann�qwertqwefsday.eu and/or toast�bunkerlabs.net .
+(The at sign has been replaced so that spammers do not find these email addresses easily.
+If you are a human you hopefully know what to do.)
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the
