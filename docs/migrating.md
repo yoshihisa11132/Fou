@@ -21,9 +21,11 @@ LINE_NUM="$(npx typeorm migration:show -d ormconfig.js | grep -n nsfwDetection16
 NUM_MIGRATIONS="$(npx typeorm migration:show -d ormconfig.js | tail -n+"$LINE_NUM" | grep '\[X\]' | nl)"
 
 for i in $(seq 1 $NUM_MIGRATIONS); do
-	npx typeorm migration:revert -d ormconfig.js
+	npx typeorm migration:revert -d ormconfig.js || continue
 done
 ```
+
+**Note:** TypeORM might hang when reverting a migration. If it says that the migration was reverted successfully, you can force close TypeORM using Ctrl-C. The script will continue until all of the migrations have been reverted.
 
 ## Switching repositories
 To switch to the FoundKey repository, do the following in your Misskey install location:
