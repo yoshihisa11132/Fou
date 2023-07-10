@@ -65,6 +65,7 @@ defineProps<{
 		}
 
 		> .body {
+			overflow: clip;
 
 			> .cw {
 				cursor: default;

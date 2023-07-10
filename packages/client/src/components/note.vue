@@ -420,6 +420,8 @@ function focusAfter() {
 			min-width: 0;
 
 			> .body {
+				overflow: clip;
+
 				> .cw {
 					cursor: default;
 					display: block;

@@ -72,6 +72,7 @@ const showContent = $ref(false);
 		}
 
 		> .body {
+			overflow: clip;
 
 			> .cw {
 				cursor: default;

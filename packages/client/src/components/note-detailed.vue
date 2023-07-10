@@ -441,6 +441,8 @@ if (appearNote.replyId) {
 
 		> .main {
 			> .body {
+				overflow: clip;
+
 				> .cw {
 					cursor: default;
 					display: block;

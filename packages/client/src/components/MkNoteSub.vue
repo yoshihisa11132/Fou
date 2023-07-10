@@ -88,6 +88,8 @@ const replies: foundkey.entities.Note[] = props.conversation?.filter(item => ite
 			}
 
 			> .body {
+				overflow: clip;
+
 				> .cw {
 					cursor: default;
 					display: block;
