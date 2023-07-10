@@ -11,13 +11,9 @@ Please understand that in such cases we might edit your issue to translate it, t
 ## Development platform
 FoundKey generally assumes that it is running on a Unix-like platform (e.g. Linux or macOS). If you are using Windows for development, we highly suggest using the Windows Subsystem for Linux (WSL) as the development environment. 
 
-## Roadmap
-See [ROADMAP.md](./ROADMAP.md)
-
 ## Issues
 Issues are intended for feature requests and bug tracking.
-
-For technical support or if you are not sure if what you are experiencing is a bug you can talk to people on the [IRC server](https://irc.akkoma.dev) in the `#foundkey` channel first.
+Please note that in general, we are not looking for completely new features to add, but quality of life improvements will be considered.
 
 Please do not close issues that are about to be resolved. It should remain open until a commit that actually resolves it is merged.
 
