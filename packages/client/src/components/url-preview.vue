@@ -73,7 +73,7 @@ fetch(`/url?url=${encodeURIComponent(requestUrl.href)}&lang=${requestLang}`).the
 		icon = info.icon;
 		sitename = info.sitename;
 		fetching = false;
-		if (['http:', 'https:'].includes(new URL(info.player.url).protocol)) {
+		if (info.player.url != null && ['http:', 'https:'].includes(new URL(info.player.url).protocol)) {
 			player = info.player;
 		}
 	});
