@@ -1309,7 +1309,6 @@ _notification:
     groupInvited: "Erhaltene Gruppeneinladungen"
     app: "Benachrichtigungen von Apps"
     move: Account-Umzüge
-    updated: Beobachtete Notiz wurde bearbeitet
   _actions:
     followBack: "folgt dir nun auch"
     reply: "Antworten"
