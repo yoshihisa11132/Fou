@@ -1223,6 +1223,7 @@ _notification:
     app: "連携アプリからの通知"
 
     move: 自分以外のアカウントの引っ越し
+    updated: ウォッチ中のノートが更新された
   _actions:
     followBack: "フォローバック"
     reply: "返信"
