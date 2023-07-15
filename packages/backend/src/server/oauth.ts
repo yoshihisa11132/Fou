@@ -1,4 +1,4 @@
-import { kinds } from '@/misc/api-permissions.js';
+import { permissions } from 'foundkey-js';
 import config from '@/config/index.js';
 
 // Since it cannot change while the server is running, we can serialize it once
@@ -7,7 +7,7 @@ export const oauthMeta = JSON.stringify({
 	issuer: config.url,
 	authorization_endpoint: `${config.url}/auth`,
 	token_endpoint: `${config.apiUrl}/auth/session/oauth`,
-	scopes_supported: kinds,
+	scopes_supported: permissions,
 	response_types_supported: ['code'],
 	grant_types_supported: ['authorization_code'],
 	token_endpoint_auth_methods_supported: ['client_secret_basic'],

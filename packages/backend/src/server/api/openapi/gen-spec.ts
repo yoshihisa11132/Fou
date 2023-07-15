@@ -1,5 +1,5 @@
+import { permissions } from 'foundkey-js';
 import config from '@/config/index.js';
-import { kinds } from '@/misc/api-permissions.js';
 import { I18n } from '@/misc/i18n.js';
 import { errors as errorDefinitions } from '@/server/api/error.js';
 import { endpoints } from '@/server/api/endpoints.js';
@@ -44,7 +44,7 @@ export function genOpenapiSpec() {
 						authorizationCode: {
 							authorizationUrl: `${config.url}/auth`,
 							tokenUrl: `${config.apiUrl}/auth/session/oauth`,
-							scopes: kinds.reduce((acc, kind) => {
+							scopes: permissions.reduce((acc, kind) => {
 								acc[kind] = i18n.ts['_permissions'][kind];
 								return acc;
 							}, {}),

@@ -1,8 +1,8 @@
 import * as crypto from 'node:crypto';
+import { permissions } from 'foundkey-js';
 import { AuthSessions, AccessTokens, Apps } from '@/models/index.js';
 import { genId } from '@/misc/gen-id.js';
 import { secureRndstr } from '@/misc/secure-rndstr.js';
-import { kinds } from '@/misc/api-permissions.js';
 import define from '@/server/api/define.js';
 import { ApiError } from '@/server/api/error.js';
 
@@ -28,7 +28,7 @@ export const paramDef = {
 			uniqueItems: true,
 			items: {
 				type: 'string',
-				enum: kinds,
+				enum: permissions,
 			},
 		},
 	},

@@ -1,7 +1,7 @@
+import { permissions } from 'foundkey-js';
 import { Apps } from '@/models/index.js';
 import { genId } from '@/misc/gen-id.js';
 import { secureRndstr } from '@/misc/secure-rndstr.js';
-import { kinds } from '@/misc/api-permissions.js';
 import define from '@/server/api/define.js';
 
 export const meta = {
@@ -26,7 +26,7 @@ export const paramDef = {
 			uniqueItems: true,
 			items: {
 				type: 'string',
-				enum: kinds,
+				enum: permissions,
 			},
 		},
 		callbackUrl: { type: 'string', nullable: true },
