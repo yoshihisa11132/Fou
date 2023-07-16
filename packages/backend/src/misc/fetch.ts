@@ -43,7 +43,7 @@ export async function getResponse(args: { url: string, method: string, body?: st
 		method: args.method,
 		headers: Object.assign({
 			'User-Agent': config.userAgent,
-		}, args.headers),args.headers,
+		}, args.headers),
 		body: args.body,
 		redirect: args.redirect,
 		size: args.size || 10 * 1024 * 1024, // 10 MiB
