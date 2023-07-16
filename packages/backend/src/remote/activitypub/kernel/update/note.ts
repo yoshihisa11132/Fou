@@ -20,8 +20,6 @@ export async function update(actor: IRemoteUser, note: IObject, resolver: Resolv
 		try {
 			// if creating was successful...
 			const existsNow = await Notes.findOneByOrFail({ uri });
-			// set the updatedAt timestamp since the note was changed
-			await Notes.update(existsNow.id, { updatedAt: new Date() });
 			return 'ok: unknown note created and marked as updated';
 		} catch (e) {
 			return `skip: updated note unknown and creating rejected: ${e.message}`;

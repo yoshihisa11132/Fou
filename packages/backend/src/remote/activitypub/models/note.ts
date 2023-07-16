@@ -278,6 +278,7 @@ export async function createNote(value: string | IObject, resolver: Resolver, si
 		return await post(actor, {
 			...processedContent,
 			createdAt: note.published ? new Date(note.published) : null,
+			updatedAt: note.updated,
 			reply,
 			renote: quote,
 			localOnly: false,
@@ -354,7 +355,7 @@ export async function updateNote(value: IPost, actor: User, resolver: Resolver):
 
 	// update note content itself
 	await Notes.update(exists.id, {
-		updatedAt: new Date(),
+		updatedAt: value.updated ?? new Date(),
 
 		cw: processedContent.cw,
 		fileIds: processedContent.files.map(file => file.id),

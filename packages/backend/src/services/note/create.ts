@@ -26,6 +26,7 @@ type MinimumUser = {
 
 type Option = {
 	createdAt?: Date | null;
+	updatedAt?: Date | null;
 	name?: string | null;
 	text?: string | null;
 	reply?: Note | null;
@@ -159,6 +160,7 @@ async function insertNote(user: { id: User['id']; host: User['host']; }, data: O
 	const insert = new Note({
 		id: genId(createdAt),
 		createdAt,
+		updatedAt: data.updatedAt ?? null,
 		fileIds: data.files?.map(file => file.id) ?? [],
 		replyId: data.reply?.id ?? null,
 		renoteId: data.renote?.id ?? null,
