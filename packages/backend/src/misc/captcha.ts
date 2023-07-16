@@ -1,7 +1,6 @@
 import { URLSearchParams } from 'node:url';
-import fetch from 'node-fetch';
+import { getResponse } from '@/misc/fetch.js';
 import config from '@/config/index.js';
-import { getAgentByUrl } from './fetch.js';
 
 export async function verifyRecaptcha(secret: string, response: string): Promise<void> {
 	const result = await getCaptchaResponse('https://www.recaptcha.net/recaptcha/api/siteverify', secret, response).catch(e => {
@@ -36,15 +35,10 @@ async function getCaptchaResponse(url: string, secret: string, response: string)
 		response,
 	});
 
-	const res = await fetch(url, {
+	const res = await getResponse({
+		url,
 		method: 'POST',
 		body: params,
-		headers: {
-			'User-Agent': config.userAgent,
-		},
-		// TODO
-		//timeout: 10 * 1000,
-		agent: getAgentByUrl,
 	}).catch(e => {
 		throw new Error(`${e.message || e}`);
 	});

@@ -7,48 +7,45 @@ import { HttpProxyAgent, HttpsProxyAgent } from 'hpagent';
 import { SECOND } from '@/const.js';
 import config from '@/config/index.js';
 
-export async function getJson(url: string, accept = 'application/json, */*', timeout = 10 * SECOND, headers?: Record<string, string>) {
+export async function getJson(url: string, accept = 'application/json, */*', timeout = 10 * SECOND, headers: Record<string, string> = {}) {
 	const res = await getResponse({
 		url,
 		method: 'GET',
 		headers: Object.assign({
-			'User-Agent': config.userAgent,
 			Accept: accept,
-		}, headers || {}),
+		}, headers),
 		timeout,
 	});
 
 	return await res.json();
 }
 
-export async function getHtml(url: string, accept = 'text/html, */*', timeout = 10 * SECOND, headers?: Record<string, string>) {
+export async function getHtml(url: string, accept = 'text/html, */*', timeout = 10 * SECOND, headers: Record<string, string> = {}) {
 	const res = await getResponse({
 		url,
 		method: 'GET',
 		headers: Object.assign({
-			'User-Agent': config.userAgent,
 			Accept: accept,
-		}, headers || {}),
+		}, headers),
 		timeout,
 	});
 
 	return await res.text();
 }
 
-export async function getResponse(args: { url: string, method: string, body?: string, headers: Record<string, string>, timeout?: number, size?: number, redirect: 'follow' | 'manual' | 'error' = 'follow' }) {
-	const timeout = args.timeout || 10 * SECOND;
-
+export async function getResponse(args: { url: string, method: string, body?: string, headers: Record<string, string>, timeout: number = 10 * SECOND, size?: number, redirect: 'follow' | 'manual' | 'error' = 'follow' }) {
 	const controller = new AbortController();
 	setTimeout(() => {
 		controller.abort();
-	}, timeout * 6);
+	}, timeout);
 
 	const res = await fetch(args.url, {
 		method: args.method,
-		headers: args.headers,
+		headers: Object.assign({
+			'User-Agent': config.userAgent,
+		}, args.headers),args.headers,
 		body: args.body,
 		redirect: args.redirect,
-		timeout,
 		size: args.size || 10 * 1024 * 1024, // 10 MiB
 		agent: getAgentByUrl,
 		signal: controller.signal,

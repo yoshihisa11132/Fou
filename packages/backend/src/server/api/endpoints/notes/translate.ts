@@ -1,7 +1,6 @@
 import { URLSearchParams } from 'node:url';
-import fetch from 'node-fetch';
 import config from '@/config/index.js';
-import { getAgentByUrl } from '@/misc/fetch.js';
+import { getResponse } from '@/misc/fetch.js';
 import { fetchMeta } from '@/misc/fetch-meta.js';
 import { TranslationService } from '@/models/entities/meta.js';
 import { ApiError } from '@/server/api/error.js';
@@ -154,17 +153,14 @@ export default define(meta, paramDef, async (ps, user) => {
 			? 'https://api-free.deepl.com/v2/translate'
 			: 'https://api.deepl.com/v2/translate';
 
-		const res = await fetch(endpoint, {
+		const res = await getResponse({
+			url: endpoint,
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
-				'User-Agent': config.userAgent,
 				Accept: 'application/json, */*',
 			},
 			body: params,
-			// TODO
-			//timeout: 10000,
-			agent: getAgentByUrl,
 		});
 
 		const json = (await res.json()) as {
@@ -179,7 +175,7 @@ export default define(meta, paramDef, async (ps, user) => {
 			text: json.translations[0].text,
 		};
 	}
-	
+
 	async function translateLibreTranslate(): Promise<Translation | number> {
 		if (note.text == null || instance.libreTranslateEndpoint == null) {
 			return 204;
@@ -198,7 +194,8 @@ export default define(meta, paramDef, async (ps, user) => {
 			api_key,
 		};
 
-		const res = await fetch(endpoint, {
+		const res = await getReponse({
+			url: endpoint,
 			method: 'POST',
 			body: JSON.stringify(params),
 			headers: { 'Content-Type': 'application/json' },
