@@ -5,6 +5,7 @@ import { UserPublickey } from '@/models/entities/user-publickey.js';
 import { uriPersonCache, userByIdCache } from '@/services/user-cache.js';
 import { createPerson } from '@/remote/activitypub/models/person.js';
 import { Resolver } from '@/remote/activitypub/resolver.js';
+import { HOUR } from '@/const.js';
 
 export type AuthUser = {
 	user: IRemoteUser;
@@ -12,11 +13,11 @@ export type AuthUser = {
 };
 
 const publicKeyCache = new Cache<UserPublickey>(
-	Infinity,
+	2 * HOUR,
 	(keyId) => UserPublickeys.findOneBy({ keyId }).then(x => x ?? undefined),
 );
 const publicKeyByUserIdCache = new Cache<UserPublickey>(
-	Infinity,
+	2 * HOUR,
 	(userId) => UserPublickeys.findOneBy({ userId }).then(x => x ?? undefined),
 );
 
