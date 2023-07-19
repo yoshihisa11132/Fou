@@ -193,7 +193,7 @@
 	{ "category": "people", "char": "👩‍🦱", "name": "curly_hair_woman", "keywords": ["afro", "curly", "braids", "ringlets", "girl", "woman", "female", "human"] },
 	{ "category": "people", "char": "👨‍🦱", "name": "curly_hair_man", "keywords": ["guy", "afro", "curly", "braids", "ringlets", "boy", "man", "male", "human"] },
 	{ "category": "people", "char": "🧑‍🦰", "name": "red_hair", "keywords": ["redhead", "gender-neutral", "person", "human"] },
-	{ "category": "people", "char": "👩‍🦰", "name": "red_hair_woman", "keywords": ["ginger", "redhead", "girl", "woman", "female", "human"] },
+	{ "category": "people", "char": "👩‍🦰", "name": "red_hair_woman", "keywords": ["ginger", "redhead", "girl", "woman", "female", "human", "mia"] },
 	{ "category": "people", "char": "👨‍🦰", "name": "red_hair_man", "keywords": ["guy", "ginger", "redhead", "boy", "man", "male", "human"] },
 	{ "category": "people", "char": "👱", "name": "blonde", "keywords": ["blonde", "gender-neutral", "person", "human"] },
 	{ "category": "people", "char": "👱‍♀️", "name": "blonde_woman", "keywords": ["blonde", "girl", "woman", "female", "human"] },
