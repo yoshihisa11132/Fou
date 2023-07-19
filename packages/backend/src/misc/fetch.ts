@@ -33,11 +33,26 @@ export async function getHtml(url: string, accept = 'text/html, */*', timeout = 
 	return await res.text();
 }
 
-export async function getResponse(args: { url: string, method: string, body?: string, headers: Record<string, string>, timeout: number = 10 * SECOND, size?: number, redirect: 'follow' | 'manual' | 'error' = 'follow' }) {
+export async function getResponse(_args: {
+	url: string,
+	method: string,
+	body?: string,
+	headers: Record<string, string>,
+	timeout?: number,
+	size?: number,
+	redirect?: 'follow' | 'manual' | 'error',
+}) {
+	const args = {
+		timeout: 10 * SECOND,
+		size: 10 * 1024 * 1024, // 10 MiB
+		redirect: 'follow',
+		..._args,
+	};
+
 	const controller = new AbortController();
 	setTimeout(() => {
 		controller.abort();
-	}, timeout);
+	}, args.timeout);
 
 	const res = await fetch(args.url, {
 		method: args.method,
@@ -46,7 +61,7 @@ export async function getResponse(args: { url: string, method: string, body?: st
 		}, args.headers),
 		body: args.body,
 		redirect: args.redirect,
-		size: args.size || 10 * 1024 * 1024, // 10 MiB
+		size: args.size,
 		agent: getAgentByUrl,
 		signal: controller.signal,
 	});
