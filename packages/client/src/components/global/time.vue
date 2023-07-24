@@ -23,15 +23,15 @@ const props = withDefaults(defineProps<{
 	utc: false,
 });
 
-const _time = typeof props.time === 'string' ? new Date(props.time) : props.time;
-const absolute = ((): string => {
+const _time = $computed((): Date => typeof props.time === 'string' ? new Date(props.time) : props.time);
+const absolute = $computed((): string => {
 	const options = props.utc ? { timeZone: 'UTC' } : {};
 	switch (props.format) {
 		case 'date': return _time.toLocaleDateString(lang ?? 'en-US', options);
 		case 'time': return _time.toLocaleTimeString(lang ?? 'en-US', options);
 		default: return _time.toLocaleString(lang ?? 'en-US', options);
 	}
-})();
+});
 
 let now = $ref(new Date());
 const relative = $computed(() => {
