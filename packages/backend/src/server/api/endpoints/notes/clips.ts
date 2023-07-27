@@ -7,6 +7,8 @@ import { ApiError } from '@/server/api/error.js';
 export const meta = {
 	tags: ['clips', 'notes'],
 
+	description: 'Provides a list of all clips that a specific note is in.',
+
 	requireCredential: false,
 
 	res: {

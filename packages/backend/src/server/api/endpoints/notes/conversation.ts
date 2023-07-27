@@ -7,6 +7,8 @@ import { getNote } from '@/server/api/common/getters.js';
 export const meta = {
 	tags: ['notes'],
 
+	description: 'Get the notes the specific note is a reply to, recursively.',
+
 	requireCredential: false,
 
 	res: {
